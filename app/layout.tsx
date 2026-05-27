@@ -1,38 +1,38 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Manrope, Archivo_Black } from "next/font/google";
+import { DM_Serif_Display, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  style: ["normal", "italic"],
-  variable: "--font-playfair",
-  display: "swap",
-});
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-manrope",
-  display: "swap",
-});
-
-const archivoBlack = Archivo_Black({
+const dmSerif = DM_Serif_Display({
   subsets: ["latin"],
   weight: ["400"],
-  variable: "--font-archivo",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Soma — Know your child. Everyday.",
+  title: "Soma Africa — The end-of-term reporting system that runs itself",
   description:
-    "After every grade, every parent hears from your school — on WhatsApp. Automatically. In plain words. Soma keeps families informed everyday.",
+    "Soma sends every parent a personal WhatsApp message after every exam — automatically. Built for Uganda's private schools.",
   metadataBase: new URL("https://soma-africa.com"),
   openGraph: {
-    title: "Soma — Know your child. Everyday.",
+    title: "Soma Africa — The end-of-term reporting system that runs itself",
     description:
-      "Soma keeps every parent updated automatically — after every grade, every assessment, every term. No app. No login. Just a WhatsApp message.",
+      "No app to download. No login to create. Every parent hears from your school after every term.",
     siteName: "Soma Africa",
     locale: "en_UG",
     type: "website",
@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${manrope.variable} ${archivoBlack.variable}`}
+      className={`${dmSerif.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body>{children}</body>
     </html>

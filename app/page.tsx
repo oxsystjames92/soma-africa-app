@@ -1,13 +1,11 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
-import Problem from "@/components/Problem";
+import ProblemValidation from "@/components/ProblemValidation";
 import HowItWorks from "@/components/HowItWorks";
-import Calculator from "@/components/Calculator";
-import FoundingSchools from "@/components/FoundingSchools";
+import Features from "@/components/Features";
+import TrustSection from "@/components/TrustSection";
 import WaitlistForm from "@/components/WaitlistForm";
 import Footer from "@/components/Footer";
-import ThemeToggle from "@/components/ThemeToggle";
-import RevealObserver from "@/components/RevealObserver";
 import ScrollProgress from "@/components/ScrollProgress";
 
 export default function Home() {
@@ -17,15 +15,13 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-        <Problem />
+        <ProblemValidation />
         <HowItWorks />
-        <Calculator />
-        <FoundingSchools />
+        <Features />
+        <TrustSection />
         <WaitlistForm />
       </main>
       <Footer />
-      <ThemeToggle />
-      <RevealObserver />
     </>
   );
 }

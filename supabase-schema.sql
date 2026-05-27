@@ -1,14 +1,14 @@
--- Run this in Supabase SQL Editor to create the waitlist leads table
+-- Run this in Supabase SQL Editor
+-- Drop old table if it exists (will lose any existing data)
+drop table if exists waitlist_leads;
 
-create table if not exists waitlist_leads (
+create table waitlist_leads (
   id            bigint generated always as identity primary key,
   created_at    timestamptz default now() not null,
-  school_name   text not null,
   contact_name  text not null,
-  role          text not null check (role in ('Director', 'Head Teacher', 'Academic Registrar', 'Other')),
-  student_count integer not null check (student_count > 0),
+  school_name   text not null,
   whatsapp      text not null,
-  email         text not null
+  student_count text not null  -- e.g. "Under 200", "200–500", "500–1,000", "Over 1,000"
 );
 
 -- Enable Row Level Security

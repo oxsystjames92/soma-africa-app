@@ -6,34 +6,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const lead: WaitlistLead = {
-      school_name: body.school_name?.trim(),
-      contact_name: body.contact_name?.trim(),
-      role: body.role,
-      student_count: Number(body.student_count),
-      whatsapp: body.whatsapp?.trim(),
-      email: body.email?.trim().toLowerCase(),
+      contact_name:  String(body.contact_name  ?? "").trim(),
+      school_name:   String(body.school_name   ?? "").trim(),
+      whatsapp:      String(body.whatsapp      ?? "").trim(),
+      student_count: String(body.student_count ?? "").trim(),
     };
 
-    if (
-      !lead.school_name ||
-      !lead.contact_name ||
-      !lead.role ||
-      !lead.student_count ||
-      !lead.whatsapp ||
-      !lead.email
-    ) {
-      return NextResponse.json(
-        { error: "All fields are required." },
-        { status: 400 }
-      );
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(lead.email)) {
-      return NextResponse.json(
-        { error: "Invalid email address." },
-        { status: 400 }
-      );
+    if (!lead.contact_name || !lead.school_name || !lead.whatsapp || !lead.student_count) {
+      return NextResponse.json({ error: "All fields are required." }, { status: 400 });
     }
 
     const { error } = await getSupabase().from("waitlist_leads").insert([lead]);
