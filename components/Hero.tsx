@@ -4,9 +4,10 @@ export default function Hero() {
       className="on-dark grain"
       style={{
         background:
-          "radial-gradient(ellipse 80% 55% at 68% -8%, rgba(229,160,25,0.13) 0%, transparent 55%)," +
-          "radial-gradient(ellipse 60% 80% at -5% 55%, rgba(5,45,33,0.85) 0%, transparent 60%)," +
-          "linear-gradient(160deg, #104836 0%, #073828 32%, #062E22 65%, #041F17 100%)",
+          "radial-gradient(ellipse 75% 55% at 66% -6%, rgba(63,160,121,0.18) 0%, transparent 52%)," +
+          "radial-gradient(ellipse 55% 75% at -4% 54%, rgba(14,58,46,0.72) 0%, transparent 58%)," +
+          "radial-gradient(ellipse 38% 38% at 100% 82%, rgba(27,94,71,0.14) 0%, transparent 50%)," +
+          "linear-gradient(155deg, #0E3A2E 0%, #07251B 34%, #051A13 64%, #04140F 100%)",
         paddingTop: "clamp(56px, 6vw, 100px)",
         paddingBottom: "clamp(90px, 10vw, 160px)",
         overflow: "hidden",
@@ -14,9 +15,14 @@ export default function Hero() {
       data-screen-label="01 Hero"
     >
       {/* Aurora blobs */}
-      <div aria-hidden="true" className="aurora-blob" style={{ width: 640, height: 640, background: "rgba(229,160,25,0.11)", right: -160, top: -220, animationDuration: "16s" }} />
-      <div aria-hidden="true" className="aurora-blob" style={{ width: 480, height: 480, background: "rgba(7,56,40,0.55)", left: -120, top: 120, animationDuration: "20s", animationDelay: "-7s" }} />
-      <div aria-hidden="true" className="aurora-blob" style={{ width: 320, height: 320, background: "rgba(229,160,25,0.07)", left: "35%", bottom: -60, animationDuration: "13s", animationDelay: "-4s" }} />
+      {/* green-400 (#3FA079) top-right glow */}
+      <div aria-hidden="true" className="aurora-blob" style={{ width: 640, height: 640, background: "rgba(63,160,121,0.13)", right: -160, top: -220, animationDuration: "16s" }} />
+      {/* green-800 (#0E3A2E) left-side depth */}
+      <div aria-hidden="true" className="aurora-blob" style={{ width: 480, height: 480, background: "rgba(14,58,46,0.60)", left: -120, top: 120, animationDuration: "20s", animationDelay: "-7s" }} />
+      {/* green-500 (#237A5B) bottom-centre accent */}
+      <div aria-hidden="true" className="aurora-blob" style={{ width: 320, height: 320, background: "rgba(35,122,91,0.09)", left: "35%", bottom: -60, animationDuration: "13s", animationDelay: "-4s" }} />
+      {/* mustard accent preserved for badge / CTA contrast */}
+      <div aria-hidden="true" className="aurora-blob" style={{ width: 260, height: 260, background: "rgba(229,160,25,0.07)", right: "18%", bottom: "10%", animationDuration: "18s", animationDelay: "-10s" }} />
 
       {/* Bottom mustard rule */}
       <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 1, background: "linear-gradient(to right, transparent 0%, var(--mustard) 50%, transparent 100%)", opacity: 0.30 }} />
