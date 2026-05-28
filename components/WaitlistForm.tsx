@@ -68,7 +68,7 @@ export default function WaitlistForm() {
   return (
     <section
       id="waitlist"
-      style={{ background: "var(--bg-base)" }}
+      style={{ background: "var(--bg-alt)" }}
       data-screen-label="06 Waitlist"
     >
       <div className="section-divider" />

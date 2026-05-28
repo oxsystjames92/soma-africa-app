@@ -31,7 +31,7 @@ export default function HowItWorks() {
   return (
     <section
       id="how"
-      style={{ background: "var(--bg-2)" }}
+      style={{ background: "var(--bg-base)" }}
       data-screen-label="03 How It Works"
     >
       <div className="section-divider" />

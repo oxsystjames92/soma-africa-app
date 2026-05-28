@@ -25,7 +25,7 @@ export default function ProblemValidation() {
   return (
     <section
       id="problem"
-      style={{ background: "var(--bg-base)" }}
+      style={{ background: "var(--bg-alt)" }}
       data-screen-label="02 Problem"
     >
       <div className="section-divider" />

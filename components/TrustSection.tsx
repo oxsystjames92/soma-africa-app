@@ -10,7 +10,7 @@ export default function TrustSection() {
   return (
     <section
       id="trust"
-      style={{ background: "var(--bg-2)" }}
+      style={{ background: "var(--bg-base)" }}
       data-screen-label="05 Trust"
     >
       <div className="section-divider" />
@@ -57,7 +57,7 @@ export default function TrustSection() {
             style={{
               maxWidth: 680,
               padding: "40px 44px",
-              background: "var(--bg-base)",
+              background: "var(--bg-alt)",
               border: "1px solid var(--border-2)",
               borderRadius: 14,
               borderLeft: "3px solid var(--em)",

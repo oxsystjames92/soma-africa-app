@@ -5,8 +5,9 @@
 /* ─── Design tokens ─── */
 :root {
   --bg-base:   #0a0f0d;
-  --bg-2:      #111a15;
-  --bg-3:      #0d1612;
+  --bg-alt:    #14221a;   /* alternate section — noticeably lighter */
+  --bg-2:      #0e1a14;   /* card/panel surfaces */
+  --bg-3:      #080d0a;   /* footer — darkest */
   --em:        #3fa079;
   --em-dim:    #237a5b;
   --em-glow:   rgba(63,160,121,0.20);
@@ -460,6 +461,8 @@ section { padding: var(--pad-y) 0; position: relative; overflow: hidden; }
   transition: background 240ms;
 }
 .pain-card:hover { background: var(--bg-2); }
+/* pain-grid on bg-alt sections: darker cards give contrast */
+
 
 /* ─── How It Works vertical steps ─── */
 .steps-vertical { display: flex; flex-direction: column; }
@@ -504,6 +507,8 @@ section { padding: var(--pad-y) 0; position: relative; overflow: hidden; }
   transition: background 240ms;
 }
 .feature-card:hover { background: var(--bg-2); }
+/* feature-grid sits on bg-alt — darker cards pop against lighter section */
+
 .feature-icon {
   width: 44px;
   height: 44px;
@@ -529,7 +534,7 @@ section { padding: var(--pad-y) 0; position: relative; overflow: hidden; }
   margin-bottom: 60px;
 }
 @media (max-width: 640px) { .stat-bar { grid-template-columns: 1fr; } }
-.stat-cell { background: var(--bg-base); padding: 36px 32px; }
+.stat-cell { background: var(--bg-alt); padding: 36px 32px; }
 
 /* ─── Waitlist form ─── */
 .waitlist-section-grid {

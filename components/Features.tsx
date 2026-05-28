@@ -27,7 +27,7 @@ export default function Features() {
   return (
     <section
       id="features"
-      style={{ background: "var(--bg-base)" }}
+      style={{ background: "var(--bg-alt)" }}
       data-screen-label="04 Features"
     >
       <div className="section-divider" />
