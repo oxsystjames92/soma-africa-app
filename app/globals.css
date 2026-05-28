@@ -5,9 +5,9 @@
 /* ─── Design tokens ─── */
 :root {
   --bg-base:   #0a0f0d;
-  --bg-alt:    #14221a;   /* alternate section — noticeably lighter */
-  --bg-2:      #0e1a14;   /* card/panel surfaces */
-  --bg-3:      #080d0a;   /* footer — darkest */
+  --bg-alt:    #1c3626;   /* alternate section — clearly lighter green */
+  --bg-2:      #112018;   /* card/panel surfaces */
+  --bg-3:      #070c0a;   /* footer — darkest */
   --em:        #3fa079;
   --em-dim:    #237a5b;
   --em-glow:   rgba(63,160,121,0.20);
