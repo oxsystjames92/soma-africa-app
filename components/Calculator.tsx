@@ -1,270 +1,224 @@
 "use client";
 import { useState, useCallback } from "react";
+import FadeUp from "./FadeUp";
 
-const FEE_PER_STUDENT = 8000;
-const SCHOOL_RATE = 0.2;
-const TEACHER_RATE = 0.15;
-const SCHOOL_MONTHS = 10;
+const FEE_PER_STUDENT  = 8000;   // UGX per pupil / month
+const SCHOOL_RATE      = 0.20;   // 20% standard · 35% founding
+const FOUNDING_RATE    = 0.35;
+const TEACHER_RATE     = 0.15;
+const MONTHS           = 10;
 
 function fmtUGX(n: number) {
-  return "UGX " + Math.round(n).toLocaleString("en-US");
+  return "UGX " + Math.round(n).toLocaleString("en-US");
 }
 
 export default function Calculator() {
   const [students, setStudents] = useState(500);
 
   const clamp = (v: number) => Math.max(100, Math.min(2000, v));
+  const pct   = ((students - 100) / (2000 - 100)) * 100;
 
-  const monthly = students * FEE_PER_STUDENT * SCHOOL_RATE;
-  const annual = monthly * SCHOOL_MONTHS;
-  const teacher = students * FEE_PER_STUDENT * TEACHER_RATE * SCHOOL_MONTHS;
-  const pct = ((students - 100) / (2000 - 100)) * 100;
+  const monthly   = students * FEE_PER_STUDENT * SCHOOL_RATE;
+  const annual    = monthly * MONTHS;
+  const founding  = students * FEE_PER_STUDENT * FOUNDING_RATE * MONTHS;
+  const teacher   = students * FEE_PER_STUDENT * TEACHER_RATE  * MONTHS;
 
-  const handleSlider = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setStudents(clamp(Number(e.target.value)));
-    },
-    []
-  );
+  const onSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudents(clamp(Number(e.target.value)));
+  }, []);
 
-  const handleInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const v = Number(e.target.value) || 100;
-      setStudents(clamp(v));
-    },
-    []
-  );
+  const onInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudents(clamp(Number(e.target.value) || 100));
+  }, []);
 
   return (
     <section
-      className="on-light"
       id="pricing"
+      style={{ background: "var(--bg-alt)" }}
       data-screen-label="04 Calculator"
-      style={{ background: "var(--parchment)" }}
     >
-      <span className="section-ordinal" aria-hidden="true">03</span>
+      <div className="section-divider" />
       <div className="wrap">
-        <div
-          className="calc-head"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 60,
-            alignItems: "end",
-            marginBottom: 60,
-          }}
-        >
-          <div>
-            <span className="eyebrow">03 — Commission</span>
-            <h2
-              className="display h-xl"
-              style={{ margin: "18px 0 0", color: "var(--ink)" }}
-            >
-              Soma <em>pays your school.</em>
-            </h2>
-          </div>
-          <p className="lead">
-            Parents pay a small monthly fee, bundled into school fees. Your
-            school earns a commission — every month, for as long as Soma runs.
-            Move the slider.
-          </p>
-        </div>
-
-        <div
-          style={{
-            background: "var(--white)",
-            borderRadius: 32,
-            padding: "clamp(28px, 3.4vw, 52px)",
-            border: "1px solid var(--parchment-edge)",
-            boxShadow: "0 30px 80px rgba(13,13,13,0.06)",
-          }}
-        >
-          {/* Slider row */}
-          <div
-            className="calc-top"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "0.9fr 1.1fr",
-              gap: 44,
-              alignItems: "center",
-              paddingBottom: 36,
-              borderBottom: "1px dashed var(--parchment-edge)",
-              marginBottom: 32,
-            }}
-          >
+        {/* Header */}
+        <FadeUp>
+          <div className="calc-head">
             <div>
-              <label
-                htmlFor="studentInput"
-                style={{
-                  display: "block", fontSize: 11.5, letterSpacing: "0.18em",
-                  textTransform: "uppercase", fontWeight: 700, color: "var(--muted)", marginBottom: 14,
-                }}
-              >
-                Your school size
-              </label>
-              <div
-                style={{
-                  fontFamily: "var(--font-playfair, Georgia, serif)", fontWeight: 700,
-                  fontSize: "clamp(60px, 7vw, 96px)", lineHeight: 1,
-                  color: "var(--ink)", display: "flex", alignItems: "baseline", gap: 14,
-                }}
-              >
+              <span className="eyebrow">Commission</span>
+              <h2 className="display h-xl" style={{ marginTop: 16 }}>
+                Soma <em>pays your school.</em>
+              </h2>
+            </div>
+            <p className="lead">
+              Parents pay a small monthly fee — bundled into school fees.
+              Your school earns a commission every month, for as long as
+              Soma runs. Move the slider to see your numbers.
+            </p>
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.1}>
+          <div className="calc-card">
+            {/* Slider row */}
+            <div className="calc-top">
+              <div>
+                <label
+                  htmlFor="studentInput"
+                  style={{
+                    display: "block",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 10,
+                    fontWeight: 600,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    color: "var(--tx-3)",
+                    marginBottom: 12,
+                  }}
+                >
+                  Your school size
+                </label>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+                  <input
+                    id="studentInput"
+                    type="number"
+                    min={100}
+                    max={2000}
+                    step={10}
+                    value={students}
+                    onChange={onInput}
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontWeight: 700,
+                      fontSize: "clamp(48px, 6vw, 80px)",
+                      lineHeight: 1,
+                      color: "var(--gold)",
+                      background: "transparent",
+                      border: 0,
+                      borderBottom: "2px solid var(--gold)",
+                      outline: "none",
+                      width: "4ch",
+                      padding: 0,
+                      MozAppearance: "textfield",
+                    } as React.CSSProperties}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      color: "var(--tx-3)",
+                    }}
+                  >
+                    students
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ paddingTop: 8 }}>
                 <input
-                  id="studentInput"
-                  type="number"
+                  id="studentSlider"
+                  type="range"
                   min={100}
                   max={2000}
                   step={10}
                   value={students}
-                  onChange={handleInput}
-                  style={{
-                    font: "inherit", border: 0, background: "transparent",
-                    color: "var(--mustard-deep)", width: "5ch", padding: 0,
-                    borderBottom: "3px solid var(--mustard)", outline: "none",
-                    MozAppearance: "textfield",
-                  }}
+                  onChange={onSlider}
+                  className="calc-slider"
+                  style={{ "--pct": `${pct}%` } as React.CSSProperties}
                 />
-                <span
-                  style={{
-                    fontFamily: "var(--font-manrope, sans-serif)", fontWeight: 500,
-                    fontSize: 15, color: "var(--muted)", letterSpacing: "0.06em", textTransform: "uppercase",
-                  }}
-                >
-                  students
-                </span>
+                <div className="calc-slider-labels">
+                  {["100", "500", "1,000", "1,500", "2,000"].map((t) => (
+                    <span key={t}>{t}</span>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div style={{ padding: "20px 0 6px" }}>
-              <input
-                id="studentSlider"
-                type="range"
-                min={100}
-                max={2000}
-                step={10}
-                value={students}
-                onChange={handleSlider}
-                className="calc-slider"
-                style={{ "--pct": `${pct}%` } as React.CSSProperties}
+            {/* Output cards */}
+            <div className="calc-cards">
+              <CalcCard
+                label="Monthly school earnings"
+                value={fmtUGX(monthly)}
+                sub="Paid to your school account every month."
+                accent={false}
               />
-              <div
+              <CalcCard
+                label="Annual school earnings"
+                value={fmtUGX(annual)}
+                sub="Standard 20% rate — every school earns this."
+                accent={false}
+              />
+              <CalcCard
+                label="Founding school rate"
+                value={fmtUGX(founding)}
+                sub="At 35% — locked for life. Available to the first 5 schools only."
+                accent
+              />
+            </div>
+
+            {/* Anchor summary */}
+            <div className="calc-anchor">
+              <span className="calc-anchor-arrow">↳</span>
+              <span>
+                At{" "}
+                <strong>{students.toLocaleString("en-US")} students</strong>,
+                a founding school earns{" "}
+                <strong style={{ color: "var(--gold)" }}>{fmtUGX(founding)}</strong>{" "}
+                per year. Passively.{" "}
+                <span style={{ color: "var(--tx-3)", fontWeight: 400 }}>
+                  (Teacher pool: {fmtUGX(teacher)} / year)
+                </span>
+              </span>
+            </div>
+
+            {/* CTA */}
+            <div className="calc-cta-row">
+              <a href="#waitlist" className="btn btn-primary large">
+                Join the Waitlist to Unlock This <span className="arr">→</span>
+              </a>
+              <p
                 style={{
-                  display: "flex", justifyContent: "space-between",
-                  fontSize: 11, color: "var(--muted)", marginTop: 14, letterSpacing: "0.04em",
+                  fontSize: 12,
+                  color: "var(--tx-3)",
+                  maxWidth: "44ch",
+                  margin: 0,
+                  lineHeight: 1.55,
                 }}
               >
-                {["100", "500", "1,000", "1,500", "2,000"].map((t) => (
-                  <span key={t}>{t}</span>
-                ))}
-              </div>
+                UGX 8,000 per pupil / month. Standard schools earn 20%.
+                Founding schools earn 35%. Teacher pool 15%.
+              </p>
             </div>
           </div>
-
-          {/* Cards */}
-          <div
-            className="calc-cards"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 14,
-              marginBottom: 30,
-            }}
-          >
-            <CalcCard
-              label="Monthly school earnings"
-              value={fmtUGX(monthly)}
-              sub="Paid to your school account every month."
-              hero={false}
-            />
-            <CalcCard
-              label="Annual school earnings"
-              value={fmtUGX(annual)}
-              sub="For doing nothing different. Soma does the work."
-              hero
-            />
-            <CalcCard
-              label="Annual teacher pool"
-              value={fmtUGX(teacher)}
-              sub="To reward teachers who use Soma most."
-              hero={false}
-            />
-          </div>
-
-          {/* Anchor */}
-          <div
-            style={{
-              display: "flex", alignItems: "center", gap: 16,
-              padding: "20px 24px", background: "var(--mustard)", color: "var(--dark)",
-              borderRadius: 14, fontSize: 15, marginBottom: 30,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "var(--font-playfair, Georgia, serif)",
-                fontWeight: 700, fontSize: 28, lineHeight: 1, color: "var(--dark)",
-              }}
-            >
-              ↳
-            </span>
-            <span>
-              <strong>
-                A <em style={{ fontStyle: "normal", fontWeight: 700 }}>{students.toLocaleString("en-US")}</em>
-                -student school earns{" "}
-                <em style={{ fontStyle: "normal", fontWeight: 700 }}>{fmtUGX(annual)}</em> per year.
-              </strong>{" "}
-              Passively.
-            </span>
-          </div>
-
-          {/* CTA row */}
-          <div
-            className="calc-cta-row"
-            style={{
-              display: "flex", justifyContent: "space-between",
-              alignItems: "center", gap: 20, flexWrap: "wrap",
-            }}
-          >
-            <a href="#waitlist" className="btn large">
-              Join the Waitlist to Unlock This <span className="arr">→</span>
-            </a>
-            <p style={{ fontSize: 12.5, color: "var(--muted)", maxWidth: "42ch", margin: 0 }}>
-              UGX 8,000 per pupil / month. Standard schools earn 20% · Founding
-              schools earn 35%. Teacher pool 15%.
-            </p>
-          </div>
-        </div>
+        </FadeUp>
       </div>
-
     </section>
   );
 }
 
 function CalcCard({
-  label,
-  value,
-  sub,
-  hero,
+  label, value, sub, accent,
 }: {
-  label: string;
-  value: string;
-  sub: string;
-  hero: boolean;
+  label: string; value: string; sub: string; accent: boolean;
 }) {
   return (
     <div
       style={{
-        background: hero ? "var(--mustard)" : "var(--dark)",
-        color: hero ? "var(--dark)" : "var(--white)",
-        borderRadius: 14,
-        padding: "26px 24px 24px",
-        position: "relative",
-        overflow: "hidden",
+        background: accent ? "var(--em)" : "var(--bg-base)",
+        border: `1px solid ${accent ? "var(--em)" : "var(--border-2)"}`,
+        borderRadius: 10,
+        padding: "28px 24px",
       }}
     >
       <div
         style={{
-          fontSize: 10.5, letterSpacing: "0.18em", textTransform: "uppercase",
-          fontWeight: 700, color: hero ? "rgba(13,13,13,0.65)" : "rgba(255,255,255,0.55)",
+          fontFamily: "var(--font-mono)",
+          fontSize: 9.5,
+          fontWeight: 700,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: accent ? "rgba(10,15,13,0.65)" : "var(--tx-3)",
           marginBottom: 14,
         }}
       >
@@ -272,16 +226,24 @@ function CalcCard({
       </div>
       <div
         style={{
-          fontFamily: "var(--font-playfair, Georgia, serif)", fontWeight: 700,
-          fontSize: "clamp(28px, 3.2vw, 42px)", lineHeight: 1,
-          letterSpacing: "-0.015em",
-          color: hero ? "var(--dark)" : "var(--mustard)",
-          marginBottom: 8, transition: "opacity 80ms",
+          fontFamily: "var(--font-mono)",
+          fontWeight: 700,
+          fontSize: "clamp(22px, 2.8vw, 34px)",
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
+          color: accent ? "var(--bg-base)" : "var(--gold)",
+          marginBottom: 8,
         }}
       >
         {value}
       </div>
-      <div style={{ fontSize: 12.5, color: hero ? "rgba(13,13,13,0.72)" : "rgba(255,255,255,0.58)", lineHeight: 1.45 }}>
+      <div
+        style={{
+          fontSize: 12.5,
+          color: accent ? "rgba(10,15,13,0.72)" : "var(--tx-2)",
+          lineHeight: 1.5,
+        }}
+      >
         {sub}
       </div>
     </div>

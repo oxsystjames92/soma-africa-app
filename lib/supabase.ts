@@ -15,6 +15,8 @@ export function getSupabase(): SupabaseClient {
 export type WaitlistLead = {
   contact_name:  string;
   school_name:   string;
-  whatsapp:      string;
+  role:          string;
   student_count: string;
+  whatsapp:      string;
+  email:         string;
 };

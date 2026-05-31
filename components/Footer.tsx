@@ -2,14 +2,7 @@ export default function Footer() {
   return (
     <footer className="footer-root" id="contact" data-screen-label="07 Footer">
       <div className="wrap">
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            gap: "clamp(32px, 4vw, 60px)",
-            marginBottom: 0,
-          }}
-        >
+        <div className="footer-3col">
           {/* Brand */}
           <div>
             <div

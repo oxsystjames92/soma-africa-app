@@ -1,3 +1,4 @@
+// DEFERRED: Phase 2/3 — social proof section; restore once real testimonials and stats exist
 import FadeUp from "./FadeUp";
 
 const stats = [

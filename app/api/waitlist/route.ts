@@ -8,11 +8,20 @@ export async function POST(req: NextRequest) {
     const lead: WaitlistLead = {
       contact_name:  String(body.contact_name  ?? "").trim(),
       school_name:   String(body.school_name   ?? "").trim(),
-      whatsapp:      String(body.whatsapp      ?? "").trim(),
+      role:          String(body.role          ?? "").trim(),
       student_count: String(body.student_count ?? "").trim(),
+      whatsapp:      String(body.whatsapp      ?? "").trim(),
+      email:         String(body.email         ?? "").toLowerCase().trim(),
     };
 
-    if (!lead.contact_name || !lead.school_name || !lead.whatsapp || !lead.student_count) {
+    if (
+      !lead.contact_name ||
+      !lead.school_name  ||
+      !lead.role         ||
+      !lead.student_count||
+      !lead.whatsapp     ||
+      !lead.email
+    ) {
       return NextResponse.json({ error: "All fields are required." }, { status: 400 });
     }
 

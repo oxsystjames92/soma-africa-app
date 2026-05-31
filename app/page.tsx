@@ -2,8 +2,8 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import ProblemValidation from "@/components/ProblemValidation";
 import HowItWorks from "@/components/HowItWorks";
-import Features from "@/components/Features";
-import TrustSection from "@/components/TrustSection";
+import Calculator from "@/components/Calculator";
+import FoundingSchools from "@/components/FoundingSchools";
 import WaitlistForm from "@/components/WaitlistForm";
 import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -17,8 +17,8 @@ export default function Home() {
         <Hero />
         <ProblemValidation />
         <HowItWorks />
-        <Features />
-        <TrustSection />
+        <Calculator />
+        <FoundingSchools />
         <WaitlistForm />
       </main>
       <Footer />

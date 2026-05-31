@@ -1,3 +1,4 @@
+// DEFERRED: Phase 3 — feature grid belongs in full product marketing, not Phase 1 lead capture
 import FadeUp from "./FadeUp";
 
 const features = [

@@ -1,158 +1,162 @@
+import FadeUp from "./FadeUp";
+
 const schools = [
-  { initial: "K", name: "Kampala Junior", confirmed: true },
-  { initial: "N", name: "Nakasero Hill",  confirmed: true },
-  { initial: "E", name: "Entebbe Heights", confirmed: true },
-  { initial: "?", name: "Your School?",   confirmed: false },
-  { initial: "?", name: "Your School?",   confirmed: false },
+  { initial: "K", name: "Kampala Junior",  confirmed: true  },
+  { initial: "N", name: "Nakasero Hill",   confirmed: true  },
+  { initial: "E", name: "Entebbe Heights", confirmed: true  },
+  { initial: "?", name: "Your School?",    confirmed: false },
+  { initial: "?", name: "Your School?",    confirmed: false },
 ];
 
 export default function FoundingSchools() {
   return (
-    <section className="on-dark grain" id="schools" data-screen-label="05 Founding schools">
-      <div className="section-rule" aria-hidden="true" />
-      <span className="section-ordinal" aria-hidden="true">04</span>
+    <section
+      id="schools"
+      style={{ background: "var(--bg-base)" }}
+      data-screen-label="05 Founding Schools"
+    >
+      <div className="section-divider" />
       <div className="wrap">
-        {/* Head */}
-        <div
-          className="founding-head"
-          style={{
-            display: "grid", gridTemplateColumns: "1fr 1fr",
-            gap: 60, alignItems: "end", marginBottom: 60,
-          }}
-        >
-          <div>
-            <span className="eyebrow">04 — Founding schools</span>
-            <h2 className="display h-xl" style={{ margin: "18px 0 0", color: "var(--white)" }}>
-              Join Uganda&apos;s <em>founding schools.</em>
-            </h2>
+        {/* Header */}
+        <FadeUp>
+          <div className="founding-head">
+            <div>
+              <span className="eyebrow">Founding schools</span>
+              <h2 className="display h-xl" style={{ marginTop: 16 }}>
+                Join Uganda&apos;s <em>founding five.</em>
+              </h2>
+            </div>
+            <p className="lead">
+              Five founding schools. A 35% rate locked for life — versus 20%
+              for every school after. Three are signed. Two spots remain.
+            </p>
           </div>
-          <p className="lead">
-            Five founding schools. A 35% rate locked for life — versus 20% for
-            every school after. Three are signed. Two remain.
-          </p>
-        </div>
+        </FadeUp>
 
         {/* Counter card */}
-        <div
-          className="counter-card-inner"
-          style={{
-            background: "var(--dark-2)", border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: 32, padding: "36px 40px",
-            display: "grid", gridTemplateColumns: "auto 1fr auto",
-            gap: 36, alignItems: "center", marginBottom: 40,
-          }}
-        >
-          <div
-            className="counter-number"
-            style={{
-              fontFamily: "var(--font-playfair, Georgia, serif)", fontWeight: 700,
-              fontSize: "clamp(56px, 7vw, 96px)", lineHeight: 1,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            47
-          </div>
-          <div style={{ lineHeight: 1.5 }}>
-            <div
-              style={{
-                fontFamily: "var(--font-playfair, Georgia, serif)", fontWeight: 700,
-                fontSize: 22, color: "var(--white)", marginBottom: 8, lineHeight: 1.15,
-              }}
-            >
-              schools on the waitlist.
-            </div>
-            <div style={{ fontSize: 13.5, color: "rgba(255,255,255,0.62)", maxWidth: "44ch" }}>
-              After the five founding schools, the rate drops to 20%. The founding
-              rate is locked for the life of your contract.
-            </div>
-          </div>
-          <div
-            className="spots-row"
-            style={{ display: "flex", gap: 6, alignItems: "center" }}
-            aria-label="3 of 5 founding spots taken"
-          >
-            {[true, true, true, false, false].map((filled, i) => (
+        <FadeUp delay={0.08}>
+          <div className="founding-counter">
+            <div className="founding-counter-num">47</div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div
-                key={i}
                 style={{
-                  width: 28, height: 28, borderRadius: 6,
-                  background: filled ? "var(--mustard)" : "rgba(255,255,255,0.10)",
-                  border: `1.5px solid ${filled ? "var(--mustard)" : "rgba(255,255,255,0.18)"}`,
-                  boxShadow: filled ? "0 0 12px rgba(229,160,25,0.4)" : "none",
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "clamp(17px, 1.8vw, 22px)",
+                  color: "var(--tx-1)",
+                  marginBottom: 8,
+                  lineHeight: 1.2,
                 }}
-              />
-            ))}
-            <span
-              style={{
-                fontSize: 11, color: "rgba(255,255,255,0.6)", letterSpacing: "0.12em",
-                textTransform: "uppercase", marginLeft: 8, fontWeight: 700,
-              }}
+              >
+                schools on the waitlist.
+              </div>
+              <div style={{ fontSize: 13.5, color: "var(--tx-2)", maxWidth: "44ch", lineHeight: 1.55 }}>
+                After the five founding schools, the commission rate drops to 20%.
+                The founding rate is locked for the life of your contract.
+              </div>
+            </div>
+
+            <div
+              className="spots-row"
+              aria-label="3 of 5 founding spots taken"
             >
-              3 of 5
-            </span>
+              {[true, true, true, false, false].map((filled, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: 6,
+                    background: filled ? "var(--gold)" : "rgba(255,255,255,0.06)",
+                    border: `1.5px solid ${filled ? "var(--gold)" : "var(--border-2)"}`,
+                    boxShadow: filled ? "0 0 10px rgba(201,168,76,0.35)" : "none",
+                  }}
+                />
+              ))}
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "var(--tx-3)",
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  marginLeft: 6,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                3 of 5
+              </span>
+            </div>
           </div>
-        </div>
+        </FadeUp>
 
         {/* School grid */}
-        <div className="school-grid">
-          {schools.map(({ initial, name, confirmed }, i) => (
-            <div key={i} className={`school ${confirmed ? "confirmed" : "open"}`}>
-              <div>
+        <FadeUp delay={0.14}>
+          <div className="school-grid">
+            {schools.map(({ initial, name, confirmed }, i) => (
+              <div
+                key={i}
+                className={`school-slot ${confirmed ? "confirmed" : "open"}`}
+              >
                 <div
                   style={{
-                    fontFamily: "var(--font-playfair, Georgia, serif)", fontWeight: 700,
-                    fontSize: 32, lineHeight: 1,
-                    color: confirmed ? "var(--dark)" : "var(--mustard)", marginBottom: 6,
+                    fontFamily: "var(--font-mono)",
+                    fontWeight: 700,
+                    fontSize: 28,
+                    lineHeight: 1,
+                    color: confirmed ? "var(--bg-base)" : "var(--em)",
+                    marginBottom: 8,
                   }}
                 >
                   {initial}
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.01em" }}>{name}</div>
+                <div style={{ fontSize: 12.5, fontWeight: 600 }}>{name}</div>
                 <div
                   style={{
-                    fontSize: 9.5, letterSpacing: "0.18em", textTransform: "uppercase",
-                    fontWeight: 700, marginTop: 8, opacity: 0.9,
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    marginTop: 8,
+                    opacity: 0.85,
                   }}
                 >
                   {confirmed ? "Confirmed" : "Open"}
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </FadeUp>
 
         {/* Urgency block */}
-        <div
-          className="urgency-row"
-          style={{
-            display: "grid", gridTemplateColumns: "1fr auto",
-            gap: 30, alignItems: "center",
-            padding: "30px 36px",
-            background: "linear-gradient(135deg, rgba(229,160,25,0.10), transparent 70%)",
-            border: "1px solid rgba(229,160,25,0.32)",
-            borderRadius: 22,
-          }}
-        >
-          <div style={{ fontSize: 15.5, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
-            <span
-              style={{
-                color: "var(--mustard)", fontWeight: 700,
-                fontFamily: "var(--font-playfair, Georgia, serif)", fontSize: 22,
-                lineHeight: 1.2, display: "block", marginBottom: 8,
-              }}
-            >
-              3 of 5 founding spots confirmed.
-            </span>
-            Founding schools earn{" "}
-            <strong style={{ color: "var(--mustard)" }}>35% lifetime commission</strong> versus 20%
-            standard. This offer closes at 5 schools.
+        <FadeUp delay={0.20}>
+          <div className="urgency-block">
+            <div>
+              <div
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "clamp(17px, 1.8vw, 22px)",
+                  color: "var(--gold)",
+                  lineHeight: 1.2,
+                  marginBottom: 10,
+                }}
+              >
+                3 of 5 founding spots confirmed.
+              </div>
+              <div style={{ fontSize: 15, color: "var(--tx-2)", lineHeight: 1.6 }}>
+                Founding schools earn{" "}
+                <strong style={{ color: "var(--gold)" }}>35% lifetime commission</strong>{" "}
+                versus 20% standard. This offer closes at 5 schools — permanently.
+              </div>
+            </div>
+            <a href="#waitlist" className="btn btn-primary large" style={{ flexShrink: 0 }}>
+              Secure Your Spot <span className="arr">→</span>
+            </a>
           </div>
-          <a href="#waitlist" className="btn large">
-            Secure Your Founding Spot <span className="arr">→</span>
-          </a>
-        </div>
+        </FadeUp>
       </div>
-
     </section>
   );
 }
