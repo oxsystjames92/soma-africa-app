@@ -21,16 +21,23 @@ export async function POST(req: NextRequest) {
       lead.student_count < 1 ||
       !lead.whatsapp
     ) {
-      return NextResponse.json({ error: "All required fields must be filled." }, { status: 400 });
+      return NextResponse.json(
+        { error: "All required fields must be filled." },
+        { status: 400 }
+      );
     }
 
-    // Upsert on whatsapp — handles duplicate signups gracefully
     const { error } = await getSupabase()
       .from("leads")
-      .upsert([lead], { onConflict: "whatsapp" });
+      .insert([lead]);
 
     if (error) {
-      console.error("Supabase upsert error:", error);
+      // Duplicate WhatsApp — already on the waitlist, treat as success
+      if (error.code === "23505") {
+        return NextResponse.json({ success: true });
+      }
+
+      console.error("Supabase insert error:", JSON.stringify(error));
       return NextResponse.json(
         { error: "Could not save your submission. Please try again." },
         { status: 500 }

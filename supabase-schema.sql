@@ -36,9 +36,4 @@ CREATE POLICY "Allow authenticated reads"
   TO authenticated
   USING (true);
 
--- Allow upserts (ON CONFLICT UPDATE) from public
-CREATE POLICY "Allow public upserts"
-  ON leads FOR UPDATE
-  TO anon
-  USING (true)
-  WITH CHECK (true);
+-- Note: no UPDATE or SELECT policy for anon — leads are write-only from the public site.
