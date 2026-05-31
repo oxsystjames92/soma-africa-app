@@ -1,41 +1,36 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Inter, JetBrains_Mono } from "next/font/google";
+import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const dmSerif = DM_Serif_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
+const playfair = Playfair_Display({
+  subsets:  ["latin"],
+  weight:   ["400", "700", "900"],
+  style:    ["normal", "italic"],
+  variable: "--font-playfair",
+  display:  "swap",
 });
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-mono",
-  display: "swap",
+const dmSans = DM_Sans({
+  subsets:  ["latin"],
+  weight:   ["300", "400", "500", "600", "700"],
+  variable: "--font-dmsans",
+  display:  "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Soma Africa — The end-of-term reporting system that runs itself",
-  description:
-    "Soma sends every parent a personal WhatsApp message after every exam — automatically. Built for Uganda's private schools.",
+  title:       "Soma Africa — Know your child. Every day.",
+  description: "Grade tracking and parent notification platform for Ugandan private schools. Teachers enter grades. Parents receive WhatsApp updates instantly. No app to download.",
   metadataBase: new URL("https://soma-africa.com"),
+  alternates: {
+    canonical: "https://soma-africa.com",
+  },
   openGraph: {
-    title: "Soma Africa — The end-of-term reporting system that runs itself",
-    description:
-      "No app to download. No login to create. Every parent hears from your school after every term.",
-    siteName: "Soma Africa",
-    locale: "en_UG",
-    type: "website",
+    title:       "Soma Africa — Know your child. Every day.",
+    description: "Grade tracking and parent notification platform for Ugandan private schools. Teachers enter grades. Parents receive WhatsApp updates instantly.",
+    url:         "https://soma-africa.com",
+    siteName:    "Soma Africa",
+    locale:      "en_UG",
+    type:        "website",
   },
 };
 
@@ -43,10 +38,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${dmSerif.variable} ${inter.variable} ${jetbrains.variable}`}
-    >
+    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
       <body>{children}</body>
     </html>
   );

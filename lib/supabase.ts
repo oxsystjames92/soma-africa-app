@@ -12,11 +12,11 @@ export function getSupabase(): SupabaseClient {
   return _client;
 }
 
-export type WaitlistLead = {
-  contact_name:  string;
+export type Lead = {
   school_name:   string;
+  director_name: string;
   role:          string;
-  student_count: string;
+  student_count: number;
   whatsapp:      string;
-  email:         string;
+  email:         string | null;
 };

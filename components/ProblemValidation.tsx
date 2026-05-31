@@ -1,23 +1,35 @@
 import FadeUp from "./FadeUp";
 
-const pains = [
+const cards = [
   {
-    icon: "01",
-    quote: "We print 400 report slips every term. At least half are never picked up from the office.",
-    stat: "~50%",
-    statLabel: "of printed reports never collected",
+    icon:    "🏫",
+    iconBg:  "rgba(229,160,25,0.12)",
+    role:    "Director",
+    roleBg:  "#E5A019",
+    roleClr: "#0D0D0D",
+    accent:  "accent-mustard",
+    pain:    "Parents only find out their child is struggling at end-of-term. By then, three families have already left for a school that communicates better.",
+    quote:   "We lose students to perception, not performance.",
   },
   {
-    icon: "02",
-    quote: "Parents call us because they don't know their child's grade. We spend days answering the same questions.",
-    stat: "3–5 days",
-    statLabel: "of staff time lost to parent calls",
+    icon:    "📋",
+    iconBg:  "rgba(34,197,94,0.12)",
+    role:    "Head Teacher",
+    roleBg:  "#22C55E",
+    roleClr: "#FFFFFF",
+    accent:  "accent-green",
+    pain:    "End-of-term report week. Three days chasing teachers for marks, fixing spreadsheet errors, and working weekends to compile 800 report cards manually.",
+    quote:   "I lose my weekends every December.",
   },
   {
-    icon: "03",
-    quote: "I sent the same message to 38 parents this term. One by one. Manually. There has to be a better way.",
-    stat: "600+",
-    statLabel: "individual WhatsApp messages per term",
+    icon:    "👨‍👧",
+    iconBg:  "rgba(59,130,246,0.12)",
+    role:    "Parent / Guardian",
+    roleBg:  "#3B82F6",
+    roleClr: "#FFFFFF",
+    accent:  "accent-blue",
+    pain:    "The school has your child for 8 hours a day, 5 days a week. You hear absolutely nothing until December. Or until something goes wrong.",
+    quote:   "I didn’t know she was failing until it was too late to do anything about it.",
   },
 ];
 
@@ -25,94 +37,87 @@ export default function ProblemValidation() {
   return (
     <section
       id="problem"
-      style={{ background: "var(--bg-alt)" }}
-      data-screen-label="02 Problem"
+      style={{ background: "#FAF3E0" }}
+      data-screen-label="02 The Problem"
     >
-      <div className="section-divider" />
-
-      <div className="wrap">
+      <div className="wrap section-py">
+        {/* Header */}
         <FadeUp>
-          <div style={{ marginBottom: 56 }}>
-            <span className="eyebrow" style={{ marginBottom: 18, display: "inline-flex" }}>
-              The same problem, every term
+          <div style={{ textAlign: "center", maxWidth: 640, margin: "0 auto clamp(48px,6vw,72px)" }}>
+            <span
+              className="eyebrow"
+              style={{ color: "#B97F0E" }}
+            >
+              The problem
             </span>
-            <h2 className="display h-xl" style={{ marginTop: 16, maxWidth: "20ch" }}>
-              Sound familiar?
+            <h2
+              className="section-h2-light"
+              style={{ marginBottom: 16 }}
+            >
+              Your parents don&apos;t know.
             </h2>
+            <p className="lead-light">
+              Three stakeholders. One shared problem. No existing solution.
+            </p>
           </div>
         </FadeUp>
 
-        <FadeUp delay={0.1}>
-          <div className="pain-grid">
-            {pains.map((p) => (
-              <div key={p.icon} className="pain-card">
+        {/* Pain cards */}
+        <div className="pain-grid">
+          {cards.map((card, i) => (
+            <FadeUp key={card.role} delay={i * 0.08}>
+              <div className={`pain-card ${card.accent}`} style={{ height: "100%" }}>
+                {/* Icon */}
                 <div
+                  className="pain-icon"
+                  style={{ background: card.iconBg }}
+                >
+                  <span role="img" aria-hidden="true">{card.icon}</span>
+                </div>
+
+                {/* Role badge */}
+                <span
+                  className="role-badge"
                   style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 10.5,
-                    fontWeight: 700,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    color: "var(--tx-3)",
+                    background: card.roleBg,
+                    color:      card.roleClr,
+                  }}
+                >
+                  {card.role}
+                </span>
+
+                {/* Pain */}
+                <p
+                  style={{
+                    fontFamily: "var(--font-dmsans), 'DM Sans', sans-serif",
+                    fontSize: 15,
+                    color: "rgba(13,13,13,0.72)",
+                    lineHeight: 1.65,
                     marginBottom: 20,
                   }}
                 >
-                  {p.icon}
-                </div>
+                  {card.pain}
+                </p>
 
+                {/* Quote */}
                 <blockquote
                   style={{
-                    fontFamily: "var(--font-serif)",
-                    fontSize: "clamp(17px, 1.5vw, 21px)",
-                    lineHeight: 1.45,
-                    color: "var(--tx-1)",
+                    fontFamily: "var(--font-playfair), 'Playfair Display', serif",
                     fontStyle: "italic",
-                    marginBottom: 28,
-                    borderLeft: "2px solid var(--border)",
-                    paddingLeft: 16,
+                    fontSize: 15,
+                    color: "#0D0D0D",
+                    borderLeft: "3px solid #E5A019",
+                    paddingLeft: 14,
+                    margin: 0,
+                    lineHeight: 1.5,
                   }}
                 >
-                  &ldquo;{p.quote}&rdquo;
+                  &ldquo;{card.quote}&rdquo;
                 </blockquote>
-
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 26,
-                      fontWeight: 700,
-                      color: "var(--gold)",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {p.stat}
-                  </span>
-                  <span style={{ fontSize: 11.5, color: "var(--tx-3)", lineHeight: 1.4 }}>
-                    {p.statLabel}
-                  </span>
-                </div>
               </div>
-            ))}
-          </div>
-        </FadeUp>
-
-        <FadeUp delay={0.18}>
-          <p
-            style={{
-              marginTop: 44,
-              fontSize: 15,
-              color: "var(--tx-2)",
-              borderLeft: "2px solid var(--em)",
-              paddingLeft: 18,
-              maxWidth: "56ch",
-              lineHeight: 1.65,
-            }}
-          >
-            If any of these sound like your school, Soma was built for you.
-            The problem is not your staff. It is the absence of a system that
-            runs without them.
-          </p>
-        </FadeUp>
+            </FadeUp>
+          ))}
+        </div>
       </div>
     </section>
   );

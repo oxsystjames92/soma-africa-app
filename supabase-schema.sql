@@ -1,29 +1,44 @@
--- Run this in Supabase SQL Editor → New query → paste → Run
--- WARNING: drops and recreates the table — all existing rows will be lost.
-drop table if exists waitlist_leads;
+-- ─────────────────────────────────────────────────────────────
+-- SOMA AFRICA — Phase 1 leads table
+-- Run this in: Supabase Dashboard → SQL Editor → New query → Run
+-- WARNING: drops the old waitlist_leads table and creates leads.
+-- ─────────────────────────────────────────────────────────────
 
-create table waitlist_leads (
-  id            bigint generated always as identity primary key,
-  created_at    timestamptz default now() not null,
-  school_name   text not null,
-  contact_name  text not null,
-  role          text not null,          -- Director | Head Teacher | Academic Registrar | Other
-  student_count text not null,          -- raw number entered by user, e.g. "500"
-  whatsapp      text not null,
-  email         text not null
+-- Remove legacy table if present
+DROP TABLE IF EXISTS waitlist_leads;
+DROP TABLE IF EXISTS leads;
+
+CREATE TABLE leads (
+  id            UUID         DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at    TIMESTAMPTZ  DEFAULT now() NOT NULL,
+  school_name   TEXT         NOT NULL,
+  director_name TEXT         NOT NULL,
+  role          TEXT         NOT NULL,   -- Director/Proprietor | Head Teacher | Academic Registrar | Other
+  student_count INTEGER      NOT NULL,   -- validated ≥ 1 in API
+  whatsapp      TEXT         NOT NULL UNIQUE,  -- UNIQUE enables upsert on duplicate submissions
+  email         TEXT,                    -- optional
+  tier          TEXT         DEFAULT 'warm',
+  source        TEXT         DEFAULT 'website'
 );
 
--- Enable Row Level Security
-alter table waitlist_leads enable row level security;
+-- Row Level Security
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 
--- Allow anonymous inserts (form submissions from the public site)
-create policy "Allow public inserts"
-  on waitlist_leads for insert
-  to anon
-  with check (true);
+-- Public can submit (INSERT) but not read other leads
+CREATE POLICY "Allow public inserts"
+  ON leads FOR INSERT
+  TO anon
+  WITH CHECK (true);
 
--- Only authenticated users (your team) can read leads
-create policy "Allow authenticated reads"
-  on waitlist_leads for select
-  to authenticated
-  using (true);
+-- Only authenticated users (your team) can read
+CREATE POLICY "Allow authenticated reads"
+  ON leads FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Allow upserts (ON CONFLICT UPDATE) from public
+CREATE POLICY "Allow public upserts"
+  ON leads FOR UPDATE
+  TO anon
+  USING (true)
+  WITH CHECK (true);

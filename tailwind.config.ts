@@ -11,67 +11,49 @@ const config: Config = {
       colors: {
         mustard: {
           DEFAULT: "#E5A019",
-          deep: "#B97F0E",
-          bright: "#F2B22A",
-          tint: "#FBF1D8",
+          hover:   "#F2B22A",
+          deep:    "#B97F0E",
+          tint:    "#FBF1D8",
         },
         dark: {
-          DEFAULT: "#073828",
-          2: "#052D21",
-          3: "#03211A",
+          DEFAULT: "#0D0D0D",
+          card:    "#1A1A1A",
+          surface: "#141414",
         },
         parchment: {
           DEFAULT: "#FAF3E0",
-          2: "#F1E8CE",
-          edge: "#E5D9B8",
+          card:    "#FFFFFF",
+          deep:    "#F0E6CA",
         },
-        ink: {
-          DEFAULT: "#1A1410",
-          soft: "#4A3F36",
-        },
-        muted: "#6F6452",
         soma: {
-          success: "#CBDC4A",
+          green: "#22C55E",
+          blue:  "#3B82F6",
         },
       },
       fontFamily: {
-        display: ["var(--font-playfair)", "Georgia", "serif"],
-        sans: ["var(--font-manrope)", "system-ui", "sans-serif"],
-        archivo: ["var(--font-archivo)", "sans-serif"],
+        heading: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"],
+        body:    ["var(--font-dmsans)",   "DM Sans",          "system-ui", "sans-serif"],
       },
       maxWidth: {
         content: "1280px",
       },
-      borderRadius: {
-        sm: "8px",
-        md: "14px",
-        lg: "22px",
-        xl: "32px",
-      },
       animation: {
-        pulse: "pulse-dot 2.2s infinite",
-        float: "float-stage 8s ease-in-out infinite",
-        "pulse-border": "pulse-border 2.4s infinite",
+        float:          "float 3s ease-in-out infinite",
+        "pulse-border": "pulseBorder 2.4s ease-in-out infinite",
+        "fade-up":      "fadeUp 0.6s ease both",
       },
       keyframes: {
-        "pulse-dot": {
-          "0%": { boxShadow: "0 0 0 0 rgba(229,160,25,0.55)" },
-          "70%": { boxShadow: "0 0 0 16px rgba(229,160,25,0)" },
-          "100%": { boxShadow: "0 0 0 0 rgba(229,160,25,0)" },
-        },
-        "float-stage": {
+        float: {
           "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
+          "50%":      { transform: "translateY(-8px)" },
         },
-        "pulse-border": {
-          "0%, 100%": {
-            boxShadow: "0 0 0 0 rgba(229,160,25,0.6)",
-            borderColor: "#E5A019",
-          },
-          "50%": {
-            boxShadow: "0 0 0 8px rgba(229,160,25,0)",
-            borderColor: "#F2B22A",
-          },
+        pulseBorder: {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(229,160,25,0.55)" },
+          "50%":      { boxShadow: "0 0 0 10px rgba(229,160,25,0)" },
+        },
+        fadeUp: {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to:   { opacity: "1", transform: "translateY(0)" },
         },
       },
     },

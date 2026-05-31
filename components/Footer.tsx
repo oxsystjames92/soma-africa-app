@@ -1,143 +1,137 @@
 export default function Footer() {
+  const year = new Date().getFullYear();
+
+  const productLinks = [
+    { label: "How It Works", href: "#how-it-works" },
+    { label: "For Schools",  href: "#calculator"   },
+    { label: "Pricing",      href: "#founding-schools" },
+    { label: "Privacy Policy", href: "#" },
+    { label: "Contact",      href: "#waitlist"     },
+  ];
+
   return (
-    <footer className="footer-root" id="contact" data-screen-label="07 Footer">
+    <footer
+      id="contact"
+      style={{
+        background: "#0D0D0D",
+        borderTop: "2px solid #E5A019",
+      }}
+      data-screen-label="07 Footer"
+    >
       <div className="wrap">
-        <div className="footer-3col">
-          {/* Brand */}
+        <div className="footer-grid">
+          {/* ── Column 1: Brand ── */}
           <div>
             <div
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 15,
+                fontFamily: "var(--font-playfair), 'Playfair Display', serif",
+                fontSize: 28,
                 fontWeight: 700,
-                letterSpacing: "0.14em",
-                color: "var(--tx-1)",
-                textTransform: "uppercase",
-                marginBottom: 14,
+                color: "#E5A019",
+                lineHeight: 1,
+                marginBottom: 10,
               }}
             >
-              SOMA<span style={{ color: "var(--em)" }}>.</span>AFRICA
+              SOMA
             </div>
-            <p
+            <div
               style={{
-                fontFamily: "var(--font-serif)",
+                fontFamily: "var(--font-dmsans), 'DM Sans', sans-serif",
+                fontSize: 14,
                 fontStyle: "italic",
-                fontSize: 17,
-                color: "var(--tx-2)",
-                lineHeight: 1.45,
-                maxWidth: "22ch",
-                marginBottom: 18,
+                color: "rgba(245,240,232,0.55)",
+                lineHeight: 1.5,
+                marginBottom: 20,
               }}
             >
-              The end-of-term reporting system that runs itself.
-            </p>
-            <p
+              Know your child. Every day.
+            </div>
+            <div
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 10,
-                color: "var(--tx-3)",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
+                fontFamily: "var(--font-dmsans), 'DM Sans', sans-serif",
+                fontSize: 13,
+                color: "rgba(245,240,232,0.30)",
+                lineHeight: 1.7,
               }}
             >
-              Built in Uganda &nbsp;·&nbsp; Designed for Africa
-            </p>
+              <a
+                href="https://soma-africa.com"
+                style={{
+                  color: "rgba(245,240,232,0.30)",
+                  display: "block",
+                  marginBottom: 4,
+                }}
+              >
+                soma-africa.com
+              </a>
+              <span>© {year} Soma Africa Limited</span>
+            </div>
           </div>
 
-          {/* Product links */}
+          {/* ── Column 2: Product links ── */}
           <div>
             <h4
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 10.5,
+                fontFamily: "var(--font-dmsans), 'DM Sans', sans-serif",
+                fontSize: 10,
                 fontWeight: 700,
-                letterSpacing: "0.18em",
+                letterSpacing: "0.20em",
                 textTransform: "uppercase",
-                color: "var(--tx-3)",
-                marginBottom: 18,
+                color: "rgba(245,240,232,0.30)",
+                marginBottom: 20,
               }}
             >
               Product
             </h4>
-            <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                { label: "How It Works", href: "#how" },
-                { label: "Features",     href: "#features" },
-                { label: "Join Waitlist",href: "#waitlist" },
-              ].map(({ label, href }) => (
+            <ul style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {productLinks.map(({ label, href }) => (
                 <li key={href}>
-                  <a href={href} className="footer-link">{label}</a>
+                  <a href={href} className="footer-link">
+                    {label}
+                  </a>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Connect */}
+          {/* ── Column 3: About ── */}
           <div>
             <h4
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 10.5,
+                fontFamily: "var(--font-dmsans), 'DM Sans', sans-serif",
+                fontSize: 10,
                 fontWeight: 700,
-                letterSpacing: "0.18em",
+                letterSpacing: "0.20em",
                 textTransform: "uppercase",
-                color: "var(--tx-3)",
-                marginBottom: 18,
+                color: "rgba(245,240,232,0.30)",
+                marginBottom: 20,
               }}
             >
-              Connect
+              About
             </h4>
-            <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-              <li>
-                <a
-                  href="https://wa.me/256700000000"
-                  className="footer-link"
-                  style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span style={{ fontSize: 16 }}>💬</span> WhatsApp Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://linkedin.com/company/soma-africa"
-                  className="footer-link"
-                  style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span style={{ fontSize: 14 }}>in</span> LinkedIn
-                </a>
-              </li>
-            </ul>
+            <div
+              style={{
+                fontFamily: "var(--font-dmsans), 'DM Sans', sans-serif",
+                fontSize: 14,
+                color: "rgba(245,240,232,0.45)",
+                lineHeight: 1.8,
+              }}
+            >
+              <div>Built in Uganda.</div>
+              <div>Designed for Africa.</div>
+              <div
+                style={{
+                  marginTop: 20,
+                  paddingTop: 20,
+                  borderTop: "1px solid rgba(255,255,255,0.07)",
+                  fontSize: 12.5,
+                  color: "rgba(245,240,232,0.25)",
+                }}
+              >
+                A Decimus Advisory venture
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="footer-bottom">
-          <span
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-              color: "var(--tx-3)",
-              letterSpacing: "0.08em",
-            }}
-          >
-            © 2025 Soma Africa Limited &nbsp;·&nbsp; soma-africa.com
-          </span>
-          <span
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-              color: "var(--tx-3)",
-              letterSpacing: "0.08em",
-              display: "flex",
-              gap: 16,
-            }}
-          >
-            <a href="#" className="footer-link">Privacy</a>
-            <a href="#" className="footer-link">Terms</a>
-          </span>
         </div>
       </div>
     </footer>
