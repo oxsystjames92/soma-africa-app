@@ -100,7 +100,7 @@ export default function WaitlistForm() {
         const data = await res.json().catch(() => ({}));
         setApiError(
           (data as { error?: string }).error ||
-          "Something went wrong. Please try again or WhatsApp us directly: +256 700 000 000"
+          "Something went wrong. Please try again or WhatsApp us directly: +256 782 086 950"
         );
         setSubmitting(false);
         return;
@@ -109,7 +109,7 @@ export default function WaitlistForm() {
       setSubmitted(true);
     } catch {
       setApiError(
-        "Something went wrong. Please try again or WhatsApp us directly: +256 700 000 000"
+        "Something went wrong. Please try again or WhatsApp us directly: +256 782 086 950"
       );
     } finally {
       setSubmitting(false);
@@ -410,7 +410,7 @@ export default function WaitlistForm() {
                         id="f_wa"
                         type="tel"
                         className={`field-input${errors.whatsapp ? " has-error" : ""}`}
-                        placeholder="+256 700 000 000"
+                        placeholder="+256 782 086 950"
                         value={fields.whatsapp}
                         onChange={set("whatsapp")}
                         autoComplete="tel"
