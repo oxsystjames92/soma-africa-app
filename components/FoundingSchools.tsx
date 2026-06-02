@@ -1,5 +1,28 @@
 import FadeUp from "./FadeUp";
 
+async function getWaitlistCount(): Promise<number> {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) return 47;
+
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/public_stats?key=eq.waitlist_count&select=value`,
+      {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        next: { revalidate: 60 },
+      }
+    );
+    const [row] = await res.json();
+    return typeof row?.value === "number" ? row.value : 47;
+  } catch {
+    return 47;
+  }
+}
+
 const SLOTS = [
   { label: "Founding School 1", confirmed: true  },
   { label: "Founding School 2", confirmed: true  },
@@ -8,10 +31,8 @@ const SLOTS = [
   { label: "Your School?",      confirmed: false },
 ];
 
-export default function FoundingSchools() {
-  // Pull from env var — updated manually each week
-  const waitlistCount =
-    process.env.NEXT_PUBLIC_WAITLIST_COUNT ?? "47";
+export default async function FoundingSchools() {
+  const waitlistCount = await getWaitlistCount();
 
   return (
     <section
@@ -41,7 +62,7 @@ export default function FoundingSchools() {
         <FadeUp delay={0.08}>
           <div className="founding-counter-card">
             <div className="founding-counter-num" aria-label={`${waitlistCount} schools on the waitlist`}>
-              {waitlistCount}
+              {String(waitlistCount)}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
