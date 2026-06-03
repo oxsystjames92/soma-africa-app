@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
   if (resendKey && notifyEmail) {
     try {
-      await fetch("https://api.resend.com/emails", {
+      const resendRes = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${resendKey}`,
@@ -45,6 +45,12 @@ export async function POST(req: NextRequest) {
           html: `<pre style="font-family:sans-serif;font-size:15px;line-height:1.7">${lines.join("\n")}</pre>`,
         }),
       });
+      const resendBody = await resendRes.json();
+      if (!resendRes.ok) {
+        console.error("Resend rejected email:", JSON.stringify(resendBody));
+      } else {
+        console.log("Resend email sent:", resendBody.id);
+      }
     } catch (err) {
       console.error("Resend error:", err);
     }
