@@ -17,14 +17,6 @@ export async function POST(req: NextRequest) {
   const r = body.record;
   if (!r) return NextResponse.json({ ok: true });
 
-  const phone  = process.env.NOTIFY_PHONE;
-  const apiKey = process.env.CALLMEBOT_API_KEY;
-
-  if (!phone || !apiKey) {
-    console.warn("WhatsApp notify: NOTIFY_PHONE or CALLMEBOT_API_KEY not set");
-    return NextResponse.json({ ok: true });
-  }
-
   const lines = [
     "🎉 New Soma Africa lead!",
     `School: ${r.school_name}`,
@@ -32,16 +24,45 @@ export async function POST(req: NextRequest) {
     `Students: ${r.student_count}`,
     `WhatsApp: ${r.whatsapp}`,
     r.email ? `Email: ${r.email}` : null,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  ].filter(Boolean);
 
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(lines)}&apikey=${apiKey}`;
+  // ── Email via Resend ──────────────────────────────────────────
+  const resendKey   = process.env.RESEND_API_KEY;
+  const notifyEmail = process.env.NOTIFY_EMAIL;
 
-  try {
-    await fetch(url);
-  } catch (err) {
-    console.error("CallMeBot error:", err);
+  if (resendKey && notifyEmail) {
+    try {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Soma Africa <onboarding@resend.dev>",
+          to:   [notifyEmail],
+          subject: `New lead: ${r.school_name}`,
+          html: `<pre style="font-family:sans-serif;font-size:15px;line-height:1.7">${lines.join("\n")}</pre>`,
+        }),
+      });
+    } catch (err) {
+      console.error("Resend error:", err);
+    }
+  } else {
+    console.warn("Email notify: RESEND_API_KEY or NOTIFY_EMAIL not set");
+  }
+
+  // ── WhatsApp via CallMeBot (optional) ─────────────────────────
+  const phone      = process.env.NOTIFY_PHONE;
+  const callmeKey  = process.env.CALLMEBOT_API_KEY;
+
+  if (phone && callmeKey) {
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(lines.join("\n"))}&apikey=${callmeKey}`;
+    try {
+      await fetch(url);
+    } catch (err) {
+      console.error("CallMeBot error:", err);
+    }
   }
 
   return NextResponse.json({ ok: true });
