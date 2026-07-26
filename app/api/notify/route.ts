@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Soma Africa <onboarding@resend.dev>",
+          from: process.env.EMAIL_FROM || "Soma Africa <onboarding@resend.dev>",
           to:   [notifyEmail],
           subject: `New lead: ${r.school_name}`,
           html: `<pre style="font-family:sans-serif;font-size:15px;line-height:1.7">${lines.join("\n")}</pre>`,
