@@ -490,6 +490,9 @@ function SuccessState({
   const waText = encodeURIComponent(
     `I just joined the Soma Africa waitlist — a grade intelligence platform for Ugandan private schools. Check it out: https://soma-africa.com`
   );
+  const waHello = encodeURIComponent(
+    `Hi, I'm ${name || "a director"} from ${school} — just joined the Soma Africa waitlist and want to secure a founding spot.`
+  );
 
   return (
     <div
@@ -559,8 +562,19 @@ function SuccessState({
           </>
         )}
         <br />
-        We will be in touch within 24 hours on WhatsApp.
+        We will be in touch within 24 hours on WhatsApp — or skip the queue
+        and message us right now:
       </p>
+
+      <a
+        href={`https://wa.me/256782086950?text=${waHello}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn-primary btn-lg"
+        style={{ marginBottom: 28, display: "inline-flex" }}
+      >
+        Chat with us on WhatsApp →
+      </a>
 
       <p
         style={{
@@ -588,7 +602,7 @@ function SuccessState({
           href={`https://wa.me/?text=${waText}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-primary"
+          className="btn-ghost"
           style={{ fontSize: 14, padding: "11px 20px" }}
         >
           Share on WhatsApp

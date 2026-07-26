@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -32,6 +33,11 @@ export const metadata: Metadata = {
     locale:      "en_UG",
     type:        "website",
   },
+  twitter: {
+    card:        "summary_large_image",
+    title:       "Soma Africa — Know your child. Every day.",
+    description: "Grade tracking and parent notifications over WhatsApp for Ugandan private schools. Schools earn commission on every student.",
+  },
 };
 
 export default function RootLayout({
@@ -39,7 +45,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
