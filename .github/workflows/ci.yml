@@ -35,3 +35,5 @@ jobs:
       - run: pnpm build
       - run: pnpm --filter @soma/db db:migrate:deploy
       - run: pnpm test
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
