@@ -1,0 +1,257 @@
+// Soma Prisma schema — CLAUDE.md §3 domain model.
+// Non-negotiables enforced here:
+//  - every tenant-owned table carries schoolId (+ index)
+//  - money is BigInt minor units + ISO-4217 currency string
+//  - LedgerEntry is append-only (Postgres trigger in migration + client guard)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SchoolStatus {
+  ACTIVE
+  SUSPENDED
+  CHURNED
+}
+
+enum Role {
+  OWNER
+  BURSAR
+  TEACHER
+  VIEWER
+  PARENT
+}
+
+enum StudentStatus {
+  ENROLLED
+  LEFT
+  GRADUATED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  VOID
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REVERSED
+}
+
+enum PaymentChannel {
+  MTN_MOMO
+  AIRTEL_MONEY
+  BANK
+  CASH
+  OTHER
+}
+
+enum ProviderType {
+  SCHOOLPAY_IMPORT
+  MTN_MOMO
+  AIRTEL_MONEY
+  BANK
+  SOMA_RAIL
+}
+
+enum ReconMethod {
+  AUTO
+  MANUAL
+}
+
+enum WebhookDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum WebhookStatus {
+  PENDING
+  DELIVERED
+  FAILED
+  DEAD
+}
+
+enum LedgerEntryType {
+  PAYMENT_RECEIVED
+  PAYMENT_REVERSED
+  INVOICE_ISSUED
+  INVOICE_VOIDED
+  ADJUSTMENT
+  SETTLEMENT
+}
+
+model SchoolGroup {
+  id      String   @id @default(uuid())
+  name    String
+  schools School[]
+}
+
+model School {
+  id            String       @id @default(uuid())
+  schoolGroupId String?
+  schoolGroup   SchoolGroup? @relation(fields: [schoolGroupId], references: [id])
+  name          String
+  country       String
+  currency      String
+  timezone      String
+  status        SchoolStatus @default(ACTIVE)
+  createdAt     DateTime     @default(now())
+
+  users         User[]
+  students      Student[]
+  invoices      Invoice[]
+  payments      Payment[]
+  ledgerEntries LedgerEntry[]
+}
+
+model User {
+  id           String    @id @default(uuid())
+  schoolId     String
+  school       School    @relation(fields: [schoolId], references: [id])
+  email        String
+  passwordHash String
+  role         Role
+  otpHash      String?
+  otpExpiresAt DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@unique([schoolId, email])
+  @@index([schoolId])
+}
+
+model Student {
+  id          String        @id @default(uuid())
+  schoolId    String
+  school      School        @relation(fields: [schoolId], references: [id])
+  externalRef String?
+  firstName   String
+  lastName    String
+  className   String?
+  status      StudentStatus @default(ENROLLED)
+  createdAt   DateTime      @default(now())
+
+  guardians GuardianStudent[]
+  invoices  Invoice[]
+  payments  Payment[]
+
+  @@index([schoolId])
+  @@index([schoolId, externalRef])
+}
+
+model Guardian {
+  id       String            @id @default(uuid())
+  name     String
+  phone    String
+  email    String?
+  locale   String            @default("en")
+  students GuardianStudent[]
+}
+
+model GuardianStudent {
+  guardianId String
+  guardian   Guardian @relation(fields: [guardianId], references: [id])
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id])
+
+  @@id([guardianId, studentId])
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  schoolId       String
+  school         School        @relation(fields: [schoolId], references: [id])
+  studentId      String
+  student        Student       @relation(fields: [studentId], references: [id])
+  term           String
+  amountDueMinor BigInt
+  currency       String
+  dueDate        DateTime
+  status         InvoiceStatus @default(DRAFT)
+  createdAt      DateTime      @default(now())
+
+  matches ReconciliationMatch[]
+
+  @@index([schoolId])
+  @@index([schoolId, studentId])
+}
+
+model Payment {
+  id          String         @id @default(uuid())
+  schoolId    String
+  school      School         @relation(fields: [schoolId], references: [id])
+  studentId   String?
+  student     Student?       @relation(fields: [studentId], references: [id])
+  amountMinor BigInt
+  currency    String
+  channel     PaymentChannel
+  providerRef String
+  receiptNo   String?
+  paidAt      DateTime
+  status      PaymentStatus  @default(PENDING)
+  createdAt   DateTime       @default(now())
+
+  matches ReconciliationMatch[]
+
+  // Idempotency: a provider reference can land at most once per school.
+  @@unique([schoolId, providerRef])
+  @@index([schoolId])
+}
+
+model ReconciliationMatch {
+  id         String      @id @default(uuid())
+  paymentId  String
+  payment    Payment     @relation(fields: [paymentId], references: [id])
+  invoiceId  String
+  invoice    Invoice     @relation(fields: [invoiceId], references: [id])
+  method     ReconMethod
+  confidence Float
+  createdAt  DateTime    @default(now())
+
+  @@unique([paymentId, invoiceId])
+}
+
+model PaymentProvider {
+  id       String       @id @default(uuid())
+  schoolId String?
+  type     ProviderType
+  config   Json
+}
+
+model WebhookEvent {
+  id        String           @id @default(uuid())
+  direction WebhookDirection
+  type      String
+  payload   Json
+  signature String?
+  attempts  Int              @default(0)
+  status    WebhookStatus    @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([status])
+}
+
+/// Append-only. Corrections are new entries — never edits or deletes.
+/// Enforced by a Postgres trigger (see migration) AND the client guard in src/client.ts.
+model LedgerEntry {
+  id          String          @id @default(uuid())
+  schoolId    String
+  school      School          @relation(fields: [schoolId], references: [id])
+  type        LedgerEntryType
+  amountMinor BigInt
+  currency    String
+  refs        Json
+  createdAt   DateTime        @default(now())
+
+  @@index([schoolId, createdAt])
+}

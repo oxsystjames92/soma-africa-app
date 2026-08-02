@@ -15,14 +15,14 @@ jobs:
           POSTGRES_USER: soma
           POSTGRES_PASSWORD: soma_local_dev
           POSTGRES_DB: soma
-        ports: ["5432:5432"]
+        ports: ["5434:5432"]
         options: >-
           --health-cmd "pg_isready -U soma"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://soma:soma_local_dev@localhost:5432/soma
+      DATABASE_URL: postgresql://soma:soma_local_dev@localhost:5434/soma
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

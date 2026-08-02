@@ -7,7 +7,8 @@ services:
       POSTGRES_PASSWORD: soma_local_dev
       POSTGRES_DB: soma
     ports:
-      - "5432:5432"
+      # Non-default host port: 5432/5433 are commonly taken by other local databases
+      - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
