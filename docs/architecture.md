@@ -1,9 +1,9 @@
 # Architecture
 
-Deeper diagrams live here as the system grows. See [CLAUDE.md](../CLAUDE.md) §4 for the
-canonical overview and [`adr/`](adr/) for decisions.
+See [CLAUDE.md](../CLAUDE.md) §4 for the canonical overview and [`adr/`](adr/README.md)
+for the decision records — one per milestone, M0 through M5.
 
-## Shape today (M0)
+## Shape today (v1 complete, M0–M5)
 
 ```
 apps/web (Next.js)  ──REST──▶  apps/api (NestJS)  ──▶  PostgreSQL (Prisma)
@@ -25,7 +25,8 @@ calls go through explicit interfaces, never direct table access into another con
 | parent | `src/parent` | **M3 — shipped**: multi-school parent identity, OTP login, children, receipts, saved payers, reminders |
 | notifications | `src/parent` (reminders) | M3 partial — channel interface shipped, real SMS/WhatsApp adapters pending credentials |
 | developer | `src/developer` | **M4 — shipped**: public v1 API, scoped keys, sandbox, OpenAPI, webhook management |
-| wallet | — | M5 |
+| wallet | `src/wallet` | **M5 — shipped**: pocket-money wallets, statements, Phase-2 seams |
+| admissions | `src/admissions` | **M5 — shipped**: OTP applications, reference tracking, decision trail, enrolment |
 
 ## Invariants that outlive any milestone
 
@@ -33,8 +34,20 @@ calls go through explicit interfaces, never direct table access into another con
 Float construction throws; cross-currency arithmetic throws. Database columns are
 `BigInt` + a currency string.
 
-**Ledger.** `LedgerEntry` is append-only, enforced by a PostgreSQL trigger
-(`soma_ledger_append_only`) and a Prisma client extension. Corrections are new entries.
+**Four tables are immutable by trigger, not by policy.** `LedgerEntry`,
+`ReconciliationAudit`, `WalletEntry`, and `ApplicationEvent` all reject
+`UPDATE`, `DELETE`, and `TRUNCATE` via `soma_ledger_append_only`; the ledger
+additionally has a Prisma client guard that fails fast with a typed error.
+Corrections are new rows.
+
+Each of these holds a fact a school or family could later dispute — where money
+went, why a payment was matched to a child, what happened to pocket money, why an
+application was refused. A new table holding that kind of fact belongs on this list.
+
+The practical consequence, which surfaces first in tests: **data here cannot be
+cleaned up.** Fixtures isolate by creating fresh tenants or students rather than
+deleting, and a data-protection erasure request will need a documented anonymisation
+path rather than a delete.
 
 **Live and sandbox are the same boundary as tenancy.** A sandbox is a `TEST`-mode
 school — a real tenant that happens to be marked test. An API key is issued against
@@ -121,6 +134,30 @@ Names and shared options live in `workers/src/queues.ts`. The webhook drain
 (`workers/src/webhook-drain.ts`) sweeps the outbox; BullMQ schedules it but is not the
 source of truth, so a Redis outage delays delivery rather than losing events. Retries
 back off exponentially with full jitter for 8 attempts (CLAUDE.md §8.5).
+
+## Where money moves
+
+Exactly two routines in the whole system change a balance. Everything else calls
+one of them.
+
+| Routine | Context | Guards |
+|---|---|---|
+| `PaymentsService.createAndInitiate` | payments | The only path from intent to a rail. Both the anonymous two-step flow and the authenticated parent flow funnel through it. |
+| `WalletService.move` | wallet | Conditional update asserting the balance it read is still on the row, so concurrent withdrawals cannot overdraw. |
+
+Both write an append-only `LedgerEntry`. A context that needs money to move calls
+one of these rather than writing its own — that is why `ParentService.pay` proves
+linkage and then delegates.
+
+## Licensing is enforced in code
+
+Soma holds no PSP, lending, or deposit-taking licence, and configuration alone
+cannot pretend otherwise:
+
+- Rail adapters **throw on construction** in `direct` mode (ADR-0002). Turning it on
+  requires deleting a guard — a code change and a review.
+- Financing and savings seams sit behind **two locks**: a feature flag, and a partner
+  check that refuses even when the flag is on (ADR-0006). No partner ships in v1.
 
 ## Local development
 
