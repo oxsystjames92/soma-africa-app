@@ -1,0 +1,100 @@
+# ADR-0005 — Developer platform
+
+- **Status:** accepted
+- **Date:** 2026-06-03
+- **Milestone:** M4
+
+## Context
+
+M4 exposes a public API with scoped keys, a sandbox, an SDK, and webhook
+management (CLAUDE.md §7 F12). DX is one of the four things we compete on (§1), so
+the docs and sandbox are product, not decoration.
+
+The new risk is a **second isolation axis**. Until now, the only boundary was the
+tenant. A sandbox adds live-versus-test, and a bug that leaks live data to a test
+key is as bad as a cross-tenant leak.
+
+## Decisions
+
+**A sandbox is a TEST-mode school.** Rather than a `mode` column on every table or a
+parallel database, a sandbox is a real tenant marked `TEST`. Live/test isolation then
+*is* tenant isolation — already enforced in the data layer and covered by tests since
+M0. A second mechanism could disagree with the first; this one cannot.
+
+**API keys are hashed with SHA-256, not Argon2id.** This looks like a weakening of
+§8.3 and is not. Argon2 exists to make *low-entropy human passwords* expensive to
+guess. An API key is 256 bits of CSPRNG output — there is no dictionary to walk and
+no rainbow table to build. A slow KDF on every single API request would cost real
+latency for no security gain. Passwords still use Argon2id, and the reasoning is
+recorded in the schema so a future reviewer does not "fix" it.
+
+**A key in a query string is refused, not accepted.** The guard rejects
+`?api_key=` outright. Silently accepting it would mean the key has already leaked
+into browser history, proxy logs, and `Referer` headers, and we would be normalizing
+the leak.
+
+**Keys are minted from a staff session, never from another key.** A leaked key that
+could mint replacements would survive its own revocation.
+
+**The secret is returned once.** Recovery is rotation, not retrieval. Nothing the
+school can read afterwards contains it, and a test asserts that.
+
+**The published spec covers only `/v1`.** Staff dashboards, the parent app, and
+provider callbacks are excluded. Publishing them would invite integration against
+routes we intend to change freely, and advertise endpoints an API key cannot call.
+`app.boot.test.ts` asserts no internal path leaks into the document.
+
+**Money crosses the wire as a decimal string.** JSON numbers lose precision past
+2^53 and a school's termly billing passes that quickly. `serialize()` converts every
+bigint, and the quickstart tells integrators to parse with `BigInt`, never
+`parseFloat`.
+
+**Pagination is cursor based.** Offsets skip or repeat rows when data is inserted
+mid-walk, which for a payments list means a reconciliation script silently missing a
+payment.
+
+**The SDK ships the webhook verifier.** Hand-rolled verification reliably gets one
+of three things wrong: comparing with `===` (timing leak), ignoring the timestamp
+(replayable forever), or verifying a re-serialized body instead of the raw bytes.
+Shipping it removes the chance to get it wrong.
+
+**The SDK never retries a 4xx.** That request will fail identically the second time,
+and blind retries on writes are how duplicate payments happen.
+
+## A latent bug this milestone surfaced
+
+`PaymentsModule` injected `ENV`, but `IdentityModule` never exported it. **The API
+could not boot at all**, and had not been able to since M1. Every test passed because
+tests construct services directly and never build the module graph.
+
+The fix was one line. The lesson was not: a suite that never starts the application
+cannot tell you the application starts. `app.boot.test.ts` now compiles the real
+graph on every run.
+
+## Decisions made under ambiguity
+
+**Idempotency records have no expiry yet.** They grow unbounded. A sweep is needed
+before launch; the `createdAt` index exists for it. Chosen over guessing a retention
+window that should be an operational decision.
+
+**Sandbox seed data is fixed, not randomized.** Four students, one term, one class,
+with two children deliberately sharing a name so an integrator can exercise the
+reconciliation review path. Deterministic data makes integration tests possible.
+
+**One sandbox per school.** Multiple sandboxes are plausible for teams, but the
+addressing (which sandbox does this key belong to?) is not obviously worth solving
+before anyone asks.
+
+**Scopes are flat strings, not a hierarchy.** `students:read` is checked by exact
+match; no wildcards. Wildcards are where over-granting starts.
+
+## Consequences
+
+- Adding a public endpoint means adding a scope and an `@ApiOperation`. A route
+  without `@RequireScopes` authenticates but authorizes nothing — worth a lint rule.
+- The sandbox is a real tenant, so it consumes rows and appears in aggregate queries
+  that are not mode-filtered. Internal reporting must exclude `mode = TEST`.
+- The SDK is in the monorepo and unpublished. Publishing needs a versioning and
+  release process that does not exist yet.
+- The spec is committed at `docs/openapi.json` and regenerated by
+  `pnpm --filter @soma/api openapi`. It will drift if that is not run in CI.

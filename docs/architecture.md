@@ -24,7 +24,7 @@ calls go through explicit interfaces, never direct table access into another con
 | reconciliation | `src/reconciliation` | **M2 — shipped**: matching, allocation, review queue, append-only audit trail |
 | parent | `src/parent` | **M3 — shipped**: multi-school parent identity, OTP login, children, receipts, saved payers, reminders |
 | notifications | `src/parent` (reminders) | M3 partial — channel interface shipped, real SMS/WhatsApp adapters pending credentials |
-| developer | — | M4 |
+| developer | `src/developer` | **M4 — shipped**: public v1 API, scoped keys, sandbox, OpenAPI, webhook management |
 | wallet | — | M5 |
 
 ## Invariants that outlive any milestone
@@ -35,6 +35,12 @@ Float construction throws; cross-currency arithmetic throws. Database columns ar
 
 **Ledger.** `LedgerEntry` is append-only, enforced by a PostgreSQL trigger
 (`soma_ledger_append_only`) and a Prisma client extension. Corrections are new entries.
+
+**Live and sandbox are the same boundary as tenancy.** A sandbox is a `TEST`-mode
+school — a real tenant that happens to be marked test. An API key is issued against
+one school, so "a test key cannot read live data" reduces to "a key cannot read
+another tenant", which the data layer already enforces. No second mechanism exists
+to disagree with the first.
 
 **Tenancy has two shapes, and every endpoint must pick one.**
 

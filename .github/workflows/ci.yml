@@ -35,5 +35,10 @@ jobs:
       - run: pnpm build
       - run: pnpm --filter @soma/db db:migrate:deploy
       - run: pnpm test
+      # The committed spec is the published contract; drift means integrators
+      # are reading documentation the API no longer honours.
+      - run: pnpm --filter @soma/api openapi
+      - name: OpenAPI spec is up to date
+        run: git diff --exit-code -- docs/openapi.json
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
