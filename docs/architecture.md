@@ -22,7 +22,8 @@ calls go through explicit interfaces, never direct table access into another con
 | payments | `src/payments` | **M1 — shipped**: MTN + Airtel rails, two-step payer flow, signed at-least-once webhooks, replay/reconcile |
 | schools (SIS + invoicing) | `src/schools` | **M2 — shipped**: terms, classes, streams, enrolments, fee structures, invoicing, arrears, dashboards, CSV export |
 | reconciliation | `src/reconciliation` | **M2 — shipped**: matching, allocation, review queue, append-only audit trail |
-| notifications | — | M3 |
+| parent | `src/parent` | **M3 — shipped**: multi-school parent identity, OTP login, children, receipts, saved payers, reminders |
+| notifications | `src/parent` (reminders) | M3 partial — channel interface shipped, real SMS/WhatsApp adapters pending credentials |
 | developer | — | M4 |
 | wallet | — | M5 |
 
@@ -35,9 +36,20 @@ Float construction throws; cross-currency arithmetic throws. Database columns ar
 **Ledger.** `LedgerEntry` is append-only, enforced by a PostgreSQL trigger
 (`soma_ledger_append_only`) and a Prisma client extension. Corrections are new entries.
 
-**Tenancy.** `tenantScoped(client, schoolId)` from `@soma/db` AND-s `schoolId` into every
-read and forces it onto every write. Scope comes from the verified session, never from
-request input.
+**Tenancy has two shapes, and every endpoint must pick one.**
+
+*Staff* are scoped by `schoolId`: `tenantScoped(client, schoolId)` from `@soma/db`
+AND-s it into every read and forces it onto every write, taken from the verified
+session and never from request input.
+
+*Parents* are scoped by **linkage**, not tenancy — a parent with children at two
+schools is one person. Access is resolved by walking `Guardian → GuardianStudent →
+Student`, so a parent reaches exactly the students linked to them and never a
+school. Their session carries no `schoolId` and no role.
+
+A route guarded by neither shape is a bug. `AuthGuard` and `GuardianGuard` are
+separate classes, and their tokens carry different JWT audiences, so one cannot be
+substituted for the other.
 
 **Adapters.** Every payment rail implements `PaymentProviderAdapter`
 (`initiatePayment`, `checkStatus`, `verifyInboundSignature`, `parseWebhook`). Partner and
