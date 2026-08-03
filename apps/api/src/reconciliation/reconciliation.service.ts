@@ -62,11 +62,14 @@ export class ReconciliationService {
     if (existing > 0) return { result: "already_reconciled" };
 
     const signal: PaymentSignal = {
-      // The payer's own code travels in the narration on these rails; the
-      // student link, when the payment carries one, is stronger still.
-      paymentCode: payment.studentId ? null : null,
-      narration: `${payment.somaRef} ${payment.receiptNo ?? ""}`.trim(),
-      payerName: null,
+      paymentCode: null,
+      // Everything free-text the rail gave us. The Soma reference is included
+      // because payers routinely paste a code into the reference field.
+      narration: [payment.narration, payment.somaRef, payment.receiptNo]
+        .filter(Boolean)
+        .join(" ")
+        .trim(),
+      payerName: payment.payerName,
     };
 
     // A payment that already knows its student (the payer used the two-step

@@ -155,16 +155,106 @@ model Student {
   @@index([schoolId, status])
 }
 
+/// A parent's login, deliberately NOT tenant-scoped.
+///
+/// Every other identity in Soma is bound to one school. A parent is the
+/// exception: children at two schools are still one person with one phone.
+/// The blast radius is contained because this record grants nothing on its
+/// own — access is derived by walking Guardian → GuardianStudent, so a parent
+/// only ever reaches students explicitly linked to them, never a school.
+model GuardianIdentity {
+  id           String    @id @default(uuid())
+  /// E.164. The login handle, and unique across the whole platform.
+  phone        String    @unique
+  otpHash      String?
+  otpExpiresAt DateTime?
+  /// Consecutive failed OTP attempts; resets on success.
+  otpAttempts  Int       @default(0)
+  lastLoginAt  DateTime?
+  locale       String    @default("en")
+  createdAt    DateTime  @default(now())
+
+  guardians   Guardian[]
+  payerProfiles PayerProfile[]
+  reminderPrefs ReminderPreference[]
+  reminderLogs  ReminderLog[]
+}
+
 model Guardian {
-  id       String            @id @default(uuid())
-  schoolId String
-  name     String
-  phone    String
-  email    String?
-  locale   String            @default("en")
-  students GuardianStudent[]
+  id         String            @id @default(uuid())
+  schoolId   String
+  /// Links this school's record to the person's platform-wide login.
+  identityId String?
+  identity   GuardianIdentity? @relation(fields: [identityId], references: [id])
+  name       String
+  phone      String
+  email      String?
+  locale     String            @default("en")
+  students   GuardianStudent[]
 
   @@index([schoolId])
+  @@index([identityId])
+}
+
+/// A mobile-money number a parent pays from, saved so they need not retype it.
+model PayerProfile {
+  id         String           @id @default(uuid())
+  identityId String
+  identity   GuardianIdentity @relation(fields: [identityId], references: [id], onDelete: Cascade)
+  /// "My MTN line", "Dad's Airtel".
+  label      String
+  msisdn     String
+  channel    PaymentChannel
+  isDefault  Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+
+  @@unique([identityId, msisdn])
+  @@index([identityId])
+}
+
+enum ReminderChannel {
+  SMS
+  WHATSAPP
+  EMAIL
+}
+
+enum ReminderStatus {
+  SENT
+  FAILED
+  SUPPRESSED_OPT_OUT
+  SUPPRESSED_RATE_LIMIT
+}
+
+/// Per-channel consent. Absence of a row means the default in code applies;
+/// an explicit row always wins, so an opt-out can never be lost to a default.
+model ReminderPreference {
+  identityId String
+  identity   GuardianIdentity @relation(fields: [identityId], references: [id], onDelete: Cascade)
+  channel    ReminderChannel
+  enabled    Boolean
+  updatedAt  DateTime         @updatedAt
+
+  @@id([identityId, channel])
+}
+
+/// Every reminder attempt, including the ones we chose not to send.
+/// Suppressions are recorded too — proving a parent was NOT messaged after
+/// opting out is the point.
+model ReminderLog {
+  id         String           @id @default(uuid())
+  identityId String
+  identity   GuardianIdentity @relation(fields: [identityId], references: [id], onDelete: Cascade)
+  schoolId   String
+  studentId  String?
+  channel    ReminderChannel
+  kind       String
+  status     ReminderStatus
+  /// Never the message body — it contains a child's name and balance.
+  detail     String?
+  createdAt  DateTime         @default(now())
+
+  @@index([identityId, createdAt])
+  @@index([schoolId, createdAt])
 }
 
 enum GuardianRelation {
@@ -373,6 +463,12 @@ model Payment {
   status      PaymentStatus  @default(PENDING)
   /// Payer MSISDN. Never logged raw; redacted to the last 4 digits.
   payerPhone  String
+  /// Name on the paying mobile-money account, when the rail reports it.
+  /// A reconciliation signal — without it the matcher is nearly blind on
+  /// payments that carry no code.
+  payerName   String?
+  /// Free text the payer or rail attached: reference, narration, message.
+  narration   String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 

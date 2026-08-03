@@ -29,6 +29,8 @@ export class InitiationRejectedError extends DomainError {
 
 const INTENT_TTL_MS = 10 * 60 * 1000;
 
+export type PaymentChannel = "MTN_MOMO" | "AIRTEL_MONEY";
+
 export interface LookupResult {
   valid: boolean;
   intentToken?: string;
@@ -92,7 +94,8 @@ export class PaymentsService {
     intentToken: string,
     amountMinor: bigint,
     payerPhone: string,
-    channel: "MTN_MOMO" | "AIRTEL_MONEY",
+    channel: PaymentChannel,
+    payerName?: string | null,
   ): Promise<ConfirmResult> {
     const intent = await this.prisma.paymentIntent.findUnique({
       where: { tokenHash: hashToken(intentToken) },
@@ -109,32 +112,76 @@ export class PaymentsService {
     });
     if (claimed.count === 0) throw new IntentInvalidError();
 
+    return this.createAndInitiate({
+      schoolId: intent.schoolId,
+      studentId: intent.studentId,
+      amountMinor,
+      payerPhone,
+      channel,
+      payerName: payerName ?? null,
+    });
+  }
+
+  /**
+   * Payment initiated by an authenticated guardian (M3).
+   *
+   * Deliberately a thin entry point onto the same private routine as the
+   * anonymous flow: there is exactly one place in this system that creates a
+   * Payment and calls a rail. Caller is responsible for proving the guardian
+   * may pay for this student — the payments context does not know about
+   * guardians and should not learn.
+   */
+  async payForStudent(input: {
+    schoolId: string;
+    studentId: string;
+    amountMinor: bigint;
+    payerPhone: string;
+    channel: PaymentChannel;
+    payerName?: string | null;
+  }): Promise<ConfirmResult> {
+    return this.createAndInitiate({ ...input, payerName: input.payerName ?? null });
+  }
+
+  /** The single path from "someone wants to pay" to "a rail was asked". */
+  private async createAndInitiate(input: {
+    schoolId: string;
+    studentId: string;
+    amountMinor: bigint;
+    payerPhone: string;
+    channel: PaymentChannel;
+    payerName: string | null;
+  }): Promise<ConfirmResult> {
     const school = await this.prisma.school.findUniqueOrThrow({
-      where: { id: intent.schoolId },
+      where: { id: input.schoolId },
       select: { currency: true },
     });
     const reference = SomaReference.generate();
-    const amount = Money.of(amountMinor, school.currency as Currency);
+    const amount = Money.of(input.amountMinor, school.currency as Currency);
+    const narration = `School fees ${reference.format()}`;
 
     const payment = await this.prisma.payment.create({
       data: {
-        schoolId: intent.schoolId,
-        studentId: intent.studentId,
+        schoolId: input.schoolId,
+        studentId: input.studentId,
         amountMinor: amount.minorUnits,
         currency: amount.currency,
-        channel,
+        channel: input.channel,
         somaRef: reference.value,
-        payerPhone,
+        payerPhone: input.payerPhone,
+        // Captured for reconciliation: without these the matcher is nearly
+        // blind on payments that arrive without a code.
+        payerName: input.payerName,
+        narration,
         status: "PENDING",
       },
     });
 
-    const adapter = this.adapterFor(channel);
+    const adapter = this.adapterFor(input.channel);
     const result = await adapter.initiatePayment({
       somaReference: reference.value,
       amount,
-      payerPhone,
-      narration: `School fees ${reference.format()}`,
+      payerPhone: input.payerPhone,
+      narration,
     });
 
     if (result.status === "rejected") {
