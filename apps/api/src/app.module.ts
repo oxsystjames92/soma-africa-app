@@ -7,9 +7,17 @@ import { PaymentsModule } from "./payments/payments.module.js";
 import { DeveloperModule } from "./developer/developer.module.js";
 import { ParentModule } from "./parent/parent.module.js";
 import { SchoolsModule } from "./schools/schools.module.js";
+import { WalletModule } from "./wallet/wallet.module.js";
 
 @Module({
-  imports: [IdentityModule, PaymentsModule, SchoolsModule, ParentModule, DeveloperModule],
+  imports: [
+    IdentityModule,
+    PaymentsModule,
+    SchoolsModule,
+    ParentModule,
+    DeveloperModule,
+    WalletModule,
+  ],
   providers: [
     { provide: APP_FILTER, useClass: DomainErrorFilter },
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },

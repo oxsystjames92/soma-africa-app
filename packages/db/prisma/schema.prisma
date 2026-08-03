@@ -101,6 +101,130 @@ enum SchoolMode {
   TEST
 }
 
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  OFFERED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+/// An admission application (CLAUDE.md §7 F13).
+///
+/// Filed by someone with no Soma account, so the only handle is a phone plus
+/// a one-time code. The public `reference` is what an applicant quotes to
+/// check progress — it is unguessable, because possession of it plus the
+/// phone is what proves ownership.
+model Application {
+  id             String            @id @default(uuid())
+  schoolId       String
+  /// Public tracking code, e.g. "APP-7F3K-2M9Q".
+  reference      String            @unique
+  applicantFirst String
+  applicantLast  String
+  dateOfBirth    DateTime?
+  /// Class or year group applied for.
+  appliedFor     String
+  guardianName   String
+  /// E.164. The login handle for checking status.
+  guardianPhone  String
+  guardianEmail  String?
+  status         ApplicationStatus @default(SUBMITTED)
+  /// Set when a place is offered and the applicant becomes a Student.
+  studentId      String?
+  notes          String?
+  otpHash        String?
+  otpExpiresAt   DateTime?
+  otpAttempts    Int               @default(0)
+  submittedAt    DateTime          @default(now())
+  decidedAt      DateTime?
+  decidedBy      String?
+
+  events ApplicationEvent[]
+
+  @@index([schoolId, status])
+  @@index([guardianPhone])
+}
+
+/// Append-only history of an application's progress. An admissions decision
+/// is disputable, so the trail is immutable like the ledger.
+model ApplicationEvent {
+  id            String            @id @default(uuid())
+  applicationId String
+  application   Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fromStatus    ApplicationStatus?
+  toStatus      ApplicationStatus
+  actorId       String?
+  note          String?
+  createdAt     DateTime          @default(now())
+
+  @@index([applicationId, createdAt])
+}
+
+enum WalletStatus {
+  ACTIVE
+  FROZEN
+  CLOSED
+}
+
+enum WalletEntryType {
+  DEPOSIT
+  WITHDRAWAL
+  /// Bursar hands physical cash to the student.
+  CASHOUT
+  ADJUSTMENT
+  REVERSAL
+}
+
+/// A student's pocket-money wallet (CLAUDE.md §7 F14).
+///
+/// `balanceMinor` is a cached projection of the append-only entries below.
+/// It is updated only by conditional writes that also assert the previous
+/// balance, so two concurrent withdrawals cannot both succeed.
+model Wallet {
+  id          String       @id @default(uuid())
+  schoolId    String
+  studentId   String       @unique
+  balanceMinor BigInt      @default(0)
+  currency    String
+  status      WalletStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  entries WalletEntry[]
+
+  @@index([schoolId])
+}
+
+/// One movement of pocket money. Append-only, enforced by trigger.
+///
+/// `balanceAfterMinor` is recorded per entry so a statement can be audited
+/// line by line without replaying every prior row.
+model WalletEntry {
+  id                String          @id @default(uuid())
+  walletId          String
+  wallet            Wallet          @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  schoolId          String
+  type              WalletEntryType
+  /// Always positive. Direction comes from `type`, so a sign error cannot
+  /// silently invert a withdrawal into a deposit.
+  amountMinor       BigInt
+  balanceAfterMinor BigInt
+  currency          String
+  /// Set when the deposit arrived through the payments context.
+  paymentId         String?
+  /// Staff member for a cashout or adjustment; null for a rail deposit.
+  actorId           String?
+  reference         String?
+  note              String?
+  createdAt         DateTime        @default(now())
+
+  @@index([walletId, createdAt])
+  @@index([schoolId, createdAt])
+}
+
 model School {
   id            String       @id @default(uuid())
   schoolGroupId String?

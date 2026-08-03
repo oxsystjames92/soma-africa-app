@@ -45,8 +45,24 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   return parsed.data;
 }
 
-/** Feature flags — Phase-2+ features merge dark behind these (CLAUDE.md §9). */
+/**
+ * Feature flags — Phase-2+ features merge dark behind these (CLAUDE.md §9).
+ *
+ * Financing and savings are regulated products requiring a licensed lending
+ * or deposit-taking partner (§2.1, Phase 2). These default to false and the
+ * seams behind them throw when called, so shipping the code is not the same
+ * as offering the product. Turning one on is a deliberate act that should
+ * accompany a partner agreement, never a config tidy-up.
+ */
 export const featureFlags = {
-  financing: false,
-  savings: false,
+  /** Fee instalments / BNPL. Requires a licensed lending partner. */
+  financing: process.env["FEATURE_FINANCING"] === "true",
+  /** Fees-savings products. Requires a licensed deposit-taking partner. */
+  savings: process.env["FEATURE_SAVINGS"] === "true",
 } as const;
+
+export type FeatureFlag = keyof typeof featureFlags;
+
+export function isEnabled(flag: FeatureFlag): boolean {
+  return featureFlags[flag];
+}

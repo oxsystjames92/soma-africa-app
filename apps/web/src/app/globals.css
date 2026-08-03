@@ -155,3 +155,136 @@ nav.tabs a[aria-current="page"] {
   font-weight: 600;
   box-shadow: inset 0 -2px 0 var(--accent);
 }
+
+/* ─── Landing page ─────────────────────────────────────────────────────────
+   Wider than the parent app, which is a phone-first utility. */
+.landing {
+  max-width: 46rem;
+}
+
+.landing section {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.landing section:last-child {
+  border-bottom: 0;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.hero h1 {
+  font-size: clamp(1.9rem, 6vw, 2.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.lede {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 32rem;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.cta {
+  display: inline-block;
+  padding: 0.75rem 1.15rem;
+  border-radius: 0.5rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cta-quiet {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--line);
+}
+
+.band {
+  background: var(--card);
+  border-radius: 0.75rem;
+  padding: 1.75rem !important;
+  margin: 1.5rem 0;
+  border: 1px solid var(--line);
+}
+
+/* Repeated structure carries the rhythm; keep the shape identical. */
+.parallel {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.parallel li {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.3rem 0;
+}
+
+.after {
+  color: var(--muted);
+  margin: 0;
+}
+
+.proof {
+  margin-bottom: 1.5rem;
+}
+
+.proof h3 {
+  font-size: 1.05rem;
+  margin: 0 0 0.35rem;
+}
+
+.proof p {
+  margin: 0;
+  max-width: 34rem;
+}
+
+.snippet {
+  background: var(--ink);
+  color: #e8f0ec;
+  padding: 0.9rem 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  margin: 1rem 0;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.closing {
+  text-align: center;
+}
+
+.closing .lede {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.closing .cta {
+  margin-top: 1.25rem;
+}
+
+.footnote {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
