@@ -4,6 +4,27 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@types/node':
+      specifier: ^26.1.2
+      version: 26.1.2
+    argon2:
+      specifier: ^0.41.1
+      version: 0.41.1
+    dotenv:
+      specifier: ^16.4.7
+      version: 16.6.1
+    typescript:
+      specifier: ^5.7.2
+      version: 5.9.3
+    vitest:
+      specifier: ^2.1.8
+      version: 2.1.9
+    zod:
+      specifier: ^3.24.1
+      version: 3.25.76
+
 importers:
 
   .:
@@ -57,10 +78,10 @@ importers:
         specifier: workspace:*
         version: link:../../packages/db
       argon2:
-        specifier: ^0.41.1
+        specifier: 'catalog:'
         version: 0.41.1
       dotenv:
-        specifier: ^16.4.7
+        specifier: 'catalog:'
         version: 16.6.1
       helmet:
         specifier: ^8.0.0
@@ -75,7 +96,7 @@ importers:
         specifier: ^7.8.1
         version: 7.8.2
       zod:
-        specifier: ^3.24.1
+        specifier: 'catalog:'
         version: 3.25.76
     devDependencies:
       '@types/express':
@@ -85,13 +106,13 @@ importers:
         specifier: ^9.0.7
         version: 9.0.10
       '@types/node':
-        specifier: ^26.1.2
+        specifier: 'catalog:'
         version: 26.1.2
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^2.1.8
+        specifier: 'catalog:'
         version: 2.1.9(@types/node@26.1.2)
 
   apps/web:
@@ -107,7 +128,7 @@ importers:
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: 'catalog:'
         version: 26.1.2
       '@types/react':
         specifier: ^18.3.17
@@ -116,10 +137,10 @@ importers:
         specifier: ^18.3.5
         version: 18.3.7(@types/react@18.3.31)
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^2.1.8
+        specifier: 'catalog:'
         version: 2.1.9(@types/node@26.1.2)
 
   packages/adapters:
@@ -129,57 +150,57 @@ importers:
         version: link:../core
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: 'catalog:'
         version: 26.1.2
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^2.1.8
+        specifier: 'catalog:'
         version: 2.1.9(@types/node@26.1.2)
 
   packages/config:
     dependencies:
       zod:
-        specifier: ^3.24.1
+        specifier: 'catalog:'
         version: 3.25.76
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: 'catalog:'
         version: 26.1.2
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^2.1.8
+        specifier: 'catalog:'
         version: 2.1.9(@types/node@26.1.2)
 
   packages/contracts:
     dependencies:
       zod:
-        specifier: ^3.24.1
+        specifier: 'catalog:'
         version: 3.25.76
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: 'catalog:'
         version: 26.1.2
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^2.1.8
+        specifier: 'catalog:'
         version: 2.1.9(@types/node@26.1.2)
 
   packages/core:
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: 'catalog:'
         version: 26.1.2
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^2.1.8
+        specifier: 'catalog:'
         version: 2.1.9(@types/node@26.1.2)
 
   packages/db:
@@ -192,13 +213,13 @@ importers:
         version: link:../core
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: 'catalog:'
         version: 26.1.2
       argon2:
-        specifier: ^0.41.1
+        specifier: 'catalog:'
         version: 0.41.1
       dotenv:
-        specifier: ^16.4.7
+        specifier: 'catalog:'
         version: 16.6.1
       prisma:
         specifier: ^5.22.0
@@ -207,10 +228,10 @@ importers:
         specifier: ^4.19.2
         version: 4.23.5
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^2.1.8
+        specifier: 'catalog:'
         version: 2.1.9(@types/node@26.1.2)
 
   workers:
@@ -222,17 +243,17 @@ importers:
         specifier: ^5.34.5
         version: 5.81.3
       dotenv:
-        specifier: ^16.4.7
+        specifier: 'catalog:'
         version: 16.6.1
     devDependencies:
       '@types/node':
-        specifier: ^26.1.2
+        specifier: 'catalog:'
         version: 26.1.2
       typescript:
-        specifier: ^5.7.2
+        specifier: 'catalog:'
         version: 5.9.3
       vitest:
-        specifier: ^2.1.8
+        specifier: 'catalog:'
         version: 2.1.9(@types/node@26.1.2)
 
 packages:

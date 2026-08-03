@@ -2,3 +2,13 @@ packages:
   - "apps/*"
   - "packages/*"
   - "workers"
+
+# Single source of truth for shared dependency versions.
+# Packages reference these as "catalog:" so upgrades happen in one place.
+catalog:
+  "@types/node": ^26.1.2
+  argon2: ^0.41.1
+  dotenv: ^16.4.7
+  typescript: ^5.7.2
+  vitest: ^2.1.8
+  zod: ^3.24.1

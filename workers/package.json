@@ -12,11 +12,11 @@
   "dependencies": {
     "@soma/config": "workspace:*",
     "bullmq": "^5.34.5",
-    "dotenv": "^16.4.7"
+    "dotenv": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^26.1.2",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
