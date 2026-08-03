@@ -7,7 +7,10 @@ import { AppModule } from "./app.module.js";
 
 async function bootstrap(): Promise<void> {
   const env = loadEnv();
-  const app = await NestFactory.create(AppModule);
+  // rawBody: provider callback signatures are computed over the exact bytes
+  // sent. Verifying a re-serialized object would authenticate different bytes
+  // than the ones we act on.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   // Security baseline — CLAUDE.md §8.8
   app.use(

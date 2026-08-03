@@ -11,6 +11,27 @@ const EnvSchema = z.object({
   JWT_EXPIRES_IN: z.string().default("15m"),
   API_PORT: z.coerce.number().int().positive().default(4000),
   WEB_URL: z.string().url().default("http://localhost:3000"),
+
+  // ─── Payment rails ───────────────────────────────────────────────────────
+  // Optional so the API boots without them; a rail without credentials is
+  // simply not registered rather than half-configured.
+  // "partner" settles through a licensed aggregator. "direct" requires Soma
+  // to hold its own PSP licence and is refused by the adapters until then.
+  RAIL_MODE: z.enum(["partner", "direct"]).default("partner"),
+
+  MTN_MOMO_BASE_URL: z.string().url().optional(),
+  MTN_MOMO_SUBSCRIPTION_KEY: z.string().optional(),
+  MTN_MOMO_API_USER: z.string().optional(),
+  MTN_MOMO_API_KEY: z.string().optional(),
+  MTN_MOMO_CALLBACK_SECRET: z.string().min(16).optional(),
+  MTN_MOMO_TARGET_ENVIRONMENT: z.string().default("sandbox"),
+
+  AIRTEL_BASE_URL: z.string().url().optional(),
+  AIRTEL_CLIENT_ID: z.string().optional(),
+  AIRTEL_CLIENT_SECRET: z.string().optional(),
+  AIRTEL_CALLBACK_SECRET: z.string().min(16).optional(),
+  AIRTEL_COUNTRY: z.string().length(2).default("UG"),
+  AIRTEL_CURRENCY: z.string().length(3).default("UGX"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
