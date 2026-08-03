@@ -4,11 +4,12 @@ import { DomainErrorFilter } from "./common/domain-error.filter.js";
 import { LoggingInterceptor } from "./common/logging.interceptor.js";
 import { IdentityModule } from "./identity/identity.module.js";
 import { PaymentsModule } from "./payments/payments.module.js";
+import { DeveloperModule } from "./developer/developer.module.js";
 import { ParentModule } from "./parent/parent.module.js";
 import { SchoolsModule } from "./schools/schools.module.js";
 
 @Module({
-  imports: [IdentityModule, PaymentsModule, SchoolsModule, ParentModule],
+  imports: [IdentityModule, PaymentsModule, SchoolsModule, ParentModule, DeveloperModule],
   providers: [
     { provide: APP_FILTER, useClass: DomainErrorFilter },
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },

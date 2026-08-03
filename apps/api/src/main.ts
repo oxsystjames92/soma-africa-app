@@ -1,9 +1,11 @@
 import "dotenv/config";
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
 import helmet from "helmet";
 import { loadEnv } from "@soma/config";
 import { AppModule } from "./app.module.js";
+import { createOpenApiDocument } from "./developer/openapi.js";
 
 async function bootstrap(): Promise<void> {
   const env = loadEnv();
@@ -33,6 +35,14 @@ async function bootstrap(): Promise<void> {
   });
 
   app.enableCors({ origin: env.WEB_URL, credentials: true });
+
+  // Interactive docs at /docs, machine-readable spec at /docs-json.
+  const document = createOpenApiDocument(app);
+  SwaggerModule.setup("docs", app, document, {
+    customSiteTitle: "Soma API",
+    swaggerOptions: { persistAuthorization: true },
+  });
+
   await app.listen(env.API_PORT);
 }
 

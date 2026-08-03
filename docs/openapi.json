@@ -1,0 +1,236 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/students": {
+      "get": {
+        "description": "Cursor-paginated. Pass nextCursor as `cursor`.",
+        "operationId": "PublicApiController_students",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List students",
+        "tags": [
+          "v1"
+        ]
+      }
+    },
+    "/v1/students/{id}": {
+      "get": {
+        "operationId": "PublicApiController_student",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retrieve a student",
+        "tags": [
+          "v1"
+        ]
+      }
+    },
+    "/v1/invoices": {
+      "get": {
+        "description": "Filter by `studentId` to get one child's bills.",
+        "operationId": "PublicApiController_invoices",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List invoices",
+        "tags": [
+          "v1"
+        ]
+      }
+    },
+    "/v1/payments": {
+      "get": {
+        "operationId": "PublicApiController_payments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List payments",
+        "tags": [
+          "v1"
+        ]
+      }
+    },
+    "/v1/payments/{somaReference}": {
+      "get": {
+        "operationId": "PublicApiController_payment",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retrieve a payment by Soma reference",
+        "tags": [
+          "v1"
+        ]
+      }
+    },
+    "/v1/webhooks/endpoints": {
+      "get": {
+        "operationId": "PublicApiController_endpoints",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List webhook endpoints",
+        "tags": [
+          "v1"
+        ]
+      },
+      "post": {
+        "description": "The signing secret is returned once and never again. Store it before you close the response.",
+        "operationId": "PublicApiController_createEndpoint",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register a webhook endpoint",
+        "tags": [
+          "v1"
+        ]
+      }
+    },
+    "/v1/webhooks/endpoints/{id}": {
+      "delete": {
+        "operationId": "PublicApiController_deleteEndpoint",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a webhook endpoint",
+        "tags": [
+          "v1"
+        ]
+      }
+    },
+    "/v1/webhooks/deliveries": {
+      "get": {
+        "description": "Attempt counts and the last error, so a failing integration can be diagnosed without contacting support.",
+        "operationId": "PublicApiController_deliveries",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List webhook deliveries",
+        "tags": [
+          "v1"
+        ]
+      }
+    },
+    "/v1/sandbox/simulate/payment": {
+      "post": {
+        "description": "Creates a pending payment without touching a rail so you can drive your own webhook handler. Refused for live keys.",
+        "operationId": "PublicApiController_simulate",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Simulate a payment (test keys only)",
+        "tags": [
+          "v1"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Soma API",
+    "description": "School payments and operations for African education.\n\n## Authentication\n\nSend your key in a header. Never in a URL — query strings end up in browser\nhistory, proxy logs, and Referer headers, so a key in one is already leaked.\n\n```\nAuthorization: Bearer sk_test_a1b2c3d4_...\n```\n\nKeys are scoped. A key can only do what it was granted: `students:read`,\n`payments:write`, and so on. Ask for the narrowest set that works.\n\n## Live and sandbox\n\nA `sk_test_` key reads and writes a sandbox school, seeded with students and\nopen invoices so you can make a useful call immediately. A `sk_live_` key\nreaches real data. They are separate tenants: a test key cannot see live rows,\nand no test call can move money.\n\nDrive a payment to completion without a rail:\n\n```\nPOST /v1/sandbox/simulate/payment\n```\n\n## Amounts\n\nMoney is **minor units as a string** — `\"4500000\"` is UGX 45,000.00. JSON\nnumbers cannot hold large integers exactly, and a silently rounded fee is the\nbug this API exists to avoid. Parse with `BigInt`, never `parseFloat`.\n\n## Pagination\n\nCursor based. Pass the `nextCursor` from a response as `cursor` on the next\nrequest. Cursors are stable while rows are inserted; offsets are not.\n\n## Idempotency\n\nSend an `Idempotency-Key` header on writes. A retry with the same key returns\nthe original response instead of acting twice. Reusing a key with a different\nbody is rejected rather than silently answered.\n\n## Webhooks\n\nDeliveries are signed `HMAC-SHA256` over `{timestamp}.{body}` and sent as\n`Soma-Signature: t=...,v1=...`. Reject anything older than five minutes.\n\nDelivery is **at least once**: retries run with exponential backoff for eight\nattempts. The `Soma-Idempotency-Key` header is stable across retries, so\ndedupe on it. Inspect any delivery, its attempt count, and its last error at\n`GET /v1/webhooks/deliveries`.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "https://api.soma-africa.com",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:4000",
+      "description": "Local"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Your API key, e.g. sk_test_a1b2c3d4_..."
+      }
+    },
+    "schemas": {}
+  }
+}

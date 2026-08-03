@@ -96,6 +96,11 @@ model SchoolGroup {
   schools School[]
 }
 
+enum SchoolMode {
+  LIVE
+  TEST
+}
+
 model School {
   id            String       @id @default(uuid())
   schoolGroupId String?
@@ -105,6 +110,13 @@ model School {
   currency      String
   timezone      String
   status        SchoolStatus @default(ACTIVE)
+  /// A sandbox is a TEST-mode school. Making the sandbox a tenant rather than
+  /// a parallel mechanism means live/test isolation rides on the tenant
+  /// boundary that is already enforced and tested.
+  mode          SchoolMode   @default(LIVE)
+  /// The live school a sandbox belongs to, so a developer's test tenant can
+  /// be found from their real one.
+  sandboxOfId   String?
   createdAt     DateTime     @default(now())
 
   users         User[]
@@ -112,6 +124,59 @@ model School {
   invoices      Invoice[]
   payments      Payment[]
   ledgerEntries LedgerEntry[]
+  apiKeys       ApiKey[]
+
+  @@index([sandboxOfId])
+}
+
+/// A scoped credential for the public API (CLAUDE.md §7 F12).
+///
+/// The secret is never stored. `prefix` is the indexed lookup handle and
+/// `hash` is a SHA-256 of the full key, compared in constant time.
+///
+/// SHA-256 rather than Argon2 is deliberate and is NOT a weakening of §8.3.
+/// Argon2 exists to make low-entropy human passwords expensive to guess. An
+/// API key is 256 bits of CSPRNG output, so there is no dictionary to walk,
+/// and a slow KDF on every single API request would cost far more than it
+/// buys. Passwords still use Argon2id.
+model ApiKey {
+  id         String     @id @default(uuid())
+  schoolId   String
+  school     School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  name       String
+  mode       SchoolMode
+  /// Displayable, non-secret head of the key: "sk_test_a1b2c3d4".
+  prefix     String     @unique
+  hash       String
+  /// Least privilege: "students:read", "payments:write", and so on.
+  scopes     String[]
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdBy  String?
+  createdAt  DateTime   @default(now())
+
+  @@index([schoolId, revokedAt])
+}
+
+/// Replay protection for public API writes (CLAUDE.md §8.4).
+///
+/// The stored response is replayed verbatim for a repeated key, so a client
+/// retrying after a timeout gets the original answer instead of creating a
+/// second payment.
+model IdempotencyRecord {
+  id             String   @id @default(uuid())
+  schoolId       String
+  key            String
+  endpoint       String
+  /// Hash of the request body. A reused key with a different body is a
+  /// client bug and is rejected rather than silently answered.
+  requestHash    String
+  responseStatus Int
+  responseBody   Json
+  createdAt      DateTime @default(now())
+
+  @@unique([schoolId, key])
+  @@index([createdAt])
 }
 
 model User {

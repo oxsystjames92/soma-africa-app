@@ -1,0 +1,18 @@
+{
+  "name": "@soma/sdk",
+  "version": "0.0.1",
+  "private": true,
+  "description": "TypeScript client for the Soma API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

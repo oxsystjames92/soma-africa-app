@@ -47,6 +47,9 @@ function parseTtlSeconds(expiresIn: string): number {
     },
     AuthGuard,
   ],
-  exports: [TOKEN_SERVICE, PRISMA, AuthGuard],
+  // ENV and PRISMA are exported because every other context builds its
+  // providers from them. Omitting ENV left the app unable to boot while unit
+  // tests, which construct services directly, still passed.
+  exports: [TOKEN_SERVICE, PRISMA, ENV, AuthGuard],
 })
 export class IdentityModule {}
