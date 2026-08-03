@@ -20,8 +20,8 @@ calls go through explicit interfaces, never direct table access into another con
 |---|---|---|
 | identity | `src/identity` | **M0 — shipped**: Argon2id + OTP auth, JWT sessions, RBAC, tenant guard |
 | payments | `src/payments` | **M1 — shipped**: MTN + Airtel rails, two-step payer flow, signed at-least-once webhooks, replay/reconcile |
-| schools (SIS + invoicing) | — | M2 |
-| reconciliation | — | M2 |
+| schools (SIS + invoicing) | `src/schools` | **M2 — shipped**: terms, classes, streams, enrolments, fee structures, invoicing, arrears, dashboards, CSV export |
+| reconciliation | `src/reconciliation` | **M2 — shipped**: matching, allocation, review queue, append-only audit trail |
 | notifications | — | M3 |
 | developer | — | M4 |
 | wallet | — | M5 |
@@ -66,6 +66,36 @@ Two guarantees hold this together. **Nothing about a student crosses the pre-aut
 boundary** — lookup returns validity and a token, never a name, school, or balance
 (§8.1). And the **outbox** means the delivery row commits with the money it describes,
 so no crash can record a payment while losing its notification.
+
+## How a payment finds its student
+
+```
+succeeded Payment
+        │
+        ├── already linked to a student?  ─── yes ──▶ allocate
+        │
+        └── no ──▶ matchPayment()  (pure, @soma/core)
+                        │
+              ┌─────────┼──────────────┬────────────────┐
+              ▼         ▼              ▼                ▼
+        exact code   reg number   code in text     fuzzy name
+          1.00         0.97       0.96 / 0.85      ≤ 0.92 (capped)
+              └─────────┴──────────────┴────────────────┘
+                              │
+                    runner-up within 0.05?  ── yes ──▶ REVIEW
+                              │ no
+                    confidence ≥ 0.95? ── no ──▶ REVIEW
+                              │ yes
+                            AUTO ──▶ allocate oldest invoice first
+```
+
+**Money moves only on a CONFIRMED match.** A proposal records an opinion and
+allocates nothing, so a wrong guess costs a bursar one click rather than a
+correction. Every branch above writes to the append-only `ReconciliationAudit`.
+
+The matcher is pure — no database, clock, or randomness — so its decisions are
+reproducible from their inputs. That is what makes the audit trail defensible and
+lets the adversarial cases live in fast unit tests.
 
 ## Queues
 

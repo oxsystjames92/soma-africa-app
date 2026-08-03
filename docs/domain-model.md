@@ -14,7 +14,13 @@ The ubiquitous language is defined in [CLAUDE.md](../CLAUDE.md) §3 and implemen
 | `Guardian` | no | Linked to Students many-to-many via `GuardianStudent` |
 | `Invoice` | yes | `amountDueMinor` BigInt + currency |
 | `Payment` | yes | Unique on `(schoolId, providerRef)` for inbound idempotency |
-| `ReconciliationMatch` | via Payment | Unique on `(paymentId, invoiceId)`; carries confidence |
+| `Term` | yes | Academic term; invoices and enrolments hang off it |
+| `SchoolClass` / `Stream` | yes | Year group and its divisions ("P5", "P5 East") |
+| `Enrolment` | yes | One student in one class per term; unique on `(studentId, termId)` |
+| `FeeItem` / `FeeStructure` | yes | What a class is charged for a term |
+| `InvoiceLine` | via Invoice | One billable line, traced back to its fee item |
+| `ReconciliationMatch` | yes | Unique on `(paymentId, invoiceId)`; carries confidence, evidence, allocated amount, and review status |
+| `ReconciliationAudit` | yes | **Append-only.** Every reconciliation decision and why |
 | `PaymentProvider` | optional | Rail configuration |
 | `WebhookEvent` | no | Inbound and outbound, with attempt count and status |
 | `LedgerEntry` | yes | **Append-only.** Every financial fact, immutable |
@@ -27,3 +33,11 @@ The ubiquitous language is defined in [CLAUDE.md](../CLAUDE.md) §3 and implemen
   `ADJUSTMENT` or `PAYMENT_REVERSED` referencing the original.
 - Every tenant-owned table carries `schoolId` and is indexed on it.
 - A `Payment` may exist without a `Student` (unreconciled); reconciliation attaches it.
+- `ReconciliationAudit` is append-only for the same reason as the ledger: it is the
+  answer when a school disputes where money went, so it must outlive the payment,
+  match, and invoice it describes.
+- A student carries two independent identifiers: `externalRef` (the payment code
+  printed on fee statements) and `regNumber` (the registration number). Both are
+  matching signals and neither substitutes for the other.
+- `Invoice.amountPaidMinor` is derived from confirmed matches but stored, so the
+  bursar's arrears view does not aggregate the whole ledger on every read.
