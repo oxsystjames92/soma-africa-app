@@ -133,37 +133,186 @@ model Student {
   id          String        @id @default(uuid())
   schoolId    String
   school      School        @relation(fields: [schoolId], references: [id])
+  /// School-assigned payment code, printed on fee statements.
   externalRef String?
+  /// Registration number — a separate identifier from the payment code.
+  regNumber   String?
   firstName   String
+  middleName  String?
   lastName    String
   className   String?
   status      StudentStatus @default(ENROLLED)
   createdAt   DateTime      @default(now())
 
-  guardians GuardianStudent[]
-  invoices  Invoice[]
-  payments  Payment[]
+  guardians   GuardianStudent[]
+  invoices    Invoice[]
+  payments    Payment[]
+  enrolments  Enrolment[]
 
+  @@unique([schoolId, externalRef])
+  @@unique([schoolId, regNumber])
   @@index([schoolId])
-  @@index([schoolId, externalRef])
+  @@index([schoolId, status])
 }
 
 model Guardian {
   id       String            @id @default(uuid())
+  schoolId String
   name     String
   phone    String
   email    String?
   locale   String            @default("en")
   students GuardianStudent[]
+
+  @@index([schoolId])
+}
+
+enum GuardianRelation {
+  MOTHER
+  FATHER
+  GUARDIAN
+  SPONSOR
+  OTHER
 }
 
 model GuardianStudent {
   guardianId String
-  guardian   Guardian @relation(fields: [guardianId], references: [id])
+  guardian   Guardian         @relation(fields: [guardianId], references: [id], onDelete: Cascade)
   studentId  String
-  student    Student  @relation(fields: [studentId], references: [id])
+  student    Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  relation   GuardianRelation @default(GUARDIAN)
+  /// The contact reminders go to first.
+  isPrimary  Boolean          @default(false)
 
   @@id([guardianId, studentId])
+  @@index([studentId])
+}
+
+enum TermStatus {
+  UPCOMING
+  ACTIVE
+  CLOSED
+}
+
+/// An academic term. Invoices and enrolments hang off it.
+model Term {
+  id        String     @id @default(uuid())
+  schoolId  String
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  status    TermStatus @default(UPCOMING)
+  createdAt DateTime   @default(now())
+
+  enrolments     Enrolment[]
+  invoices       Invoice[]
+  feeStructures  FeeStructure[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId, status])
+}
+
+/// A year group: P5, S2. Streams divide it.
+model SchoolClass {
+  id       String   @id @default(uuid())
+  schoolId String
+  name     String
+  /// Ordering hint for reports, e.g. 5 for P5.
+  level    Int?
+  createdAt DateTime @default(now())
+
+  streams       Stream[]
+  enrolments    Enrolment[]
+  feeStructures FeeStructure[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+}
+
+/// A division within a class: "P5 East".
+model Stream {
+  id      String      @id @default(uuid())
+  classId String
+  class   SchoolClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+  name    String
+
+  enrolments Enrolment[]
+
+  @@unique([classId, name])
+}
+
+enum EnrolmentStatus {
+  ACTIVE
+  TRANSFERRED
+  WITHDRAWN
+  COMPLETED
+}
+
+/// A student's placement in a class for one term.
+model Enrolment {
+  id        String          @id @default(uuid())
+  schoolId  String
+  studentId String
+  student   Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  termId    String
+  term      Term            @relation(fields: [termId], references: [id], onDelete: Cascade)
+  classId   String
+  class     SchoolClass     @relation(fields: [classId], references: [id])
+  streamId  String?
+  stream    Stream?         @relation(fields: [streamId], references: [id])
+  status    EnrolmentStatus @default(ACTIVE)
+  createdAt DateTime        @default(now())
+
+  // A student sits in exactly one class per term.
+  @@unique([studentId, termId])
+  @@index([schoolId, termId])
+  @@index([classId, termId])
+}
+
+/// A billable line a school can charge: tuition, lunch, transport.
+model FeeItem {
+  id          String   @id @default(uuid())
+  schoolId    String
+  name        String
+  amountMinor BigInt
+  currency    String
+  /// Optional items are billed only when a student opts in.
+  mandatory   Boolean  @default(true)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  structureLines FeeStructureLine[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId, active])
+}
+
+/// The set of fees charged to one class for one term.
+model FeeStructure {
+  id        String      @id @default(uuid())
+  schoolId  String
+  termId    String
+  term      Term        @relation(fields: [termId], references: [id], onDelete: Cascade)
+  classId   String
+  class     SchoolClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  lines FeeStructureLine[]
+
+  @@unique([termId, classId])
+  @@index([schoolId])
+}
+
+model FeeStructureLine {
+  id          String       @id @default(uuid())
+  structureId String
+  structure   FeeStructure @relation(fields: [structureId], references: [id], onDelete: Cascade)
+  feeItemId   String
+  feeItem     FeeItem      @relation(fields: [feeItemId], references: [id])
+  /// Overrides the fee item's default when a class is charged differently.
+  amountMinor BigInt?
+
+  @@unique([structureId, feeItemId])
 }
 
 model Invoice {
@@ -172,17 +321,38 @@ model Invoice {
   school         School        @relation(fields: [schoolId], references: [id])
   studentId      String
   student        Student       @relation(fields: [studentId], references: [id])
+  /// Human-readable term label, kept for legacy imports.
   term           String
+  termId         String?
+  termRef        Term?         @relation(fields: [termId], references: [id])
   amountDueMinor BigInt
+  /// Running total of confirmed allocations. Derived, but stored so the
+  /// bursar's arrears view does not aggregate the whole ledger on every read.
+  amountPaidMinor BigInt       @default(0)
   currency       String
   dueDate        DateTime
   status         InvoiceStatus @default(DRAFT)
   createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
+  lines   InvoiceLine[]
   matches ReconciliationMatch[]
 
   @@index([schoolId])
   @@index([schoolId, studentId])
+  @@index([schoolId, status, dueDate])
+}
+
+model InvoiceLine {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  amountMinor BigInt
+  /// Which fee item produced this line, when it came from a structure.
+  feeItemId   String?
+
+  @@index([invoiceId])
 }
 
 model Payment {
@@ -301,17 +471,68 @@ model Settlement {
   @@index([schoolId])
 }
 
+enum MatchStatus {
+  /// Awaiting a bursar's decision in the review queue.
+  PROPOSED
+  CONFIRMED
+  REJECTED
+}
+
 model ReconciliationMatch {
-  id         String      @id @default(uuid())
-  paymentId  String
-  payment    Payment     @relation(fields: [paymentId], references: [id])
-  invoiceId  String
-  invoice    Invoice     @relation(fields: [invoiceId], references: [id])
-  method     ReconMethod
-  confidence Float
-  createdAt  DateTime    @default(now())
+  id          String      @id @default(uuid())
+  schoolId    String
+  paymentId   String
+  payment     Payment     @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  invoiceId   String
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  studentId   String
+  method      ReconMethod
+  /// The matcher's strategy, e.g. payment_code or fuzzy_name.
+  strategy    String
+  confidence  Float
+  /// Why the matcher decided this — shown to the bursar reviewing it.
+  evidence    String
+  /// Partial payments mean an allocation is rarely the full invoice.
+  amountMinor BigInt
+  status      MatchStatus @default(PROPOSED)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime    @default(now())
 
   @@unique([paymentId, invoiceId])
+  @@index([schoolId, status])
+}
+
+enum ReconEventType {
+  MATCH_PROPOSED
+  MATCH_AUTO_CONFIRMED
+  MATCH_CONFIRMED
+  MATCH_REJECTED
+  PAYMENT_UNMATCHED
+  ALLOCATION_APPLIED
+}
+
+/// Append-only trail of every reconciliation decision.
+///
+/// Reconciliation is the product's trust core: when a school disputes where
+/// money went, this table is the answer. Rows are never updated or deleted —
+/// enforced by trigger, like LedgerEntry.
+model ReconciliationAudit {
+  id        String         @id @default(uuid())
+  schoolId  String
+  paymentId String?
+  invoiceId String?
+  studentId String?
+  matchId   String?
+  event     ReconEventType
+  /// Machine-readable detail: scores, runner-up, allocation amounts.
+  detail    Json
+  /// User id for a human decision; null when the engine acted.
+  actorId   String?
+  createdAt DateTime       @default(now())
+
+  @@index([schoolId, createdAt])
+  @@index([paymentId])
 }
 
 model PaymentProvider {
