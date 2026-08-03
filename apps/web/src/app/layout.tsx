@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Soma — school payments & operations",
+  title: "Soma — every payment finds the right student",
   description:
-    "Fee collection, reconciliation, and school operations for African education. Secure, auditable, API-first.",
+    "Soma matches every mobile money payment to the student who owes it, so your bursar stops reconciling fees by hand.",
 };
 
 export const viewport: Viewport = {

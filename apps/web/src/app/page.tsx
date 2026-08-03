@@ -2,8 +2,10 @@
 export default function Home() {
   return (
     <main>
-      <h1>Soma</h1>
-      <p>School payments and operations for African education.</p>
+      <h1>Every payment finds the right student.</h1>
+      <p>
+        Your bursar stops matching mobile money receipts to spreadsheet rows by hand.
+      </p>
     </main>
   );
 }
